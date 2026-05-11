@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建活动 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 页面头部 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-left: 5px solid #667eea;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .header:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-weight: 700;
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .header h1 i {
+            color: #667eea;
+            font-size: 42px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 返回按钮 */
+        .btn-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+            animation: fadeInRight 0.8s ease;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.5);
+        }
+
+        /* 主要内容卡片 */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 45px;
+            margin-bottom: 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 35px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+            padding-bottom: 20px;
+            border-bottom: 3px solid linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card h3 i {
+            color: #667eea;
+            font-size: 32px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* 表单行布局 */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* 表单组 */
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.2s; }
+        .form-group:nth-child(2) { animation-delay: 0.3s; }
+        .form-group:nth-child(3) { animation-delay: 0.4s; }
+        .form-group:nth-child(4) { animation-delay: 0.5s; }
+        .form-group:nth-child(5) { animation-delay: 0.6s; }
+        .form-group:nth-child(6) { animation-delay: 0.7s; }
+        .form-group:nth-child(7) { animation-delay: 0.8s; }
+
+        /* 标签样式 */
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #444;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .form-group label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 6px;
+            opacity: 0.2;
+            transition: all 0.3s ease;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        /* 输入框样式 */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 18px 25px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            font-size: 15px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 5px rgba(102, 126, 234, 0.15), 0 8px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 文本域样式 */
+        .form-group textarea {
+            height: 180px;
+            resize: vertical;
+            line-height: 1.8;
+            font-family: inherit;
+        }
+
+        /* 选择框样式优化 */
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="%23667eea" viewBox="0 0 16 16"><path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 25px center;
+            cursor: pointer;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 16px 35px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            min-width: 130px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        /* 主按钮 */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* 次要按钮 */
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(-1px);
+        }
+
+        /* 错误消息 */
+        .error-message {
+            background: linear-gradient(135deg, rgba(248, 215, 218, 0.9), rgba(245, 87, 108, 0.1));
+            color: #721c24;
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 6px solid #dc3545;
+            font-size: 15px;
+            display: none;
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .error-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #dc3545, #f8d7da, #dc3545);
+            animation: errorSlide 3s infinite;
+        }
+
+        @keyframes errorSlide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .error-message i {
+            margin-right: 10px;
+            color: #dc3545;
+        }
+
+        /* 表单底部按钮区域 */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+            margin-top: 50px;
+            padding-top: 35px;
+            border-top: 2px solid rgba(102, 126, 234, 0.1);
+            animation: fadeInUp 0.6s ease 1s forwards;
+            opacity: 0;
+        }
+
+        /* 提示文本 */
+        small {
+            color: #666;
+            margin-top: 10px;
+            display: block;
+            font-size: 13px;
+            line-height: 1.6;
+            background: rgba(102, 126, 234, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        small:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        small i {
+            color: #667eea;
+            margin-right: 6px;
+        }
+
+        /* 输入框聚焦效果 */
+        .form-group input:focus + label,
+        .form-group select:focus + label,
+        .form-group textarea:focus + label {
+            color: #667eea;
+            font-weight: 700;
+            transform: translateX(10px);
+        }
+
+        .form-group input:focus + label::before,
+        .form-group select:focus + label::before,
+        .form-group textarea:focus + label::before {
+            opacity: 0.4;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* 加载状态 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 0;
+            }
+
+            .container {
+                padding: 0 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 25px;
+                text-align: center;
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header h1 i {
+                font-size: 36px;
+            }
+
+            .card {
+                padding: 30px 25px;
+            }
+
+            .card h3 {
+                font-size: 24px;
+                margin-bottom: 25px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 18px;
+                font-size: 17px;
+            }
+
+            .form-group {
+                margin-bottom: 25px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 16px 20px;
+            }
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 输入框自动完成样式 */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus,
+        select:-webkit-autofill,
+        select:-webkit-autofill:hover,
+        select:-webkit-autofill:focus {
+            border: 2px solid #667eea;
+            -webkit-text-fill-color: #333;
+            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 头部 -->
+    <div class="header">
+        <h1><i class="fas fa-plus-circle"></i> 创建新活动</h1>
+        <a href="/dashboard.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> 返回仪表盘
+        </a>
+    </div>
+
+    <!-- 创建活动表单 -->
+    <div class="card">
+        <h3><i class="fas fa-rocket"></i> 创建精彩活动</h3>
+        <form id="createActivityForm">
+            <div class="form-group">
+                <label for="activityName"><i class="fas fa-heading"></i> 活动名称</label>
+                <input type="text" id="activityName" placeholder="请输入活动名称（例如：秋季招新宣讲会）" required>
+            </div>
+
+            <div class="form-group" id="clubSelectGroup">
+                <label for="clubId"><i class="fas fa-users"></i> 所属社团</label>
+                <select id="clubId" required>
+                    <option value="">请选择社团</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="activityType"><i class="fas fa-tag"></i> 活动类型</label>
+                    <select id="activityType" required onchange="updateAwardPoints()">
+                        <option value="">请选择活动类型</option>
+                        <!-- 活动类型将通过JavaScript动态生成 -->
+                    </select>
+                    <small>
+                        <i class="fas fa-info-circle"></i> 选择活动类型后，系统将自动设置对应的积分奖励
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="awardPoints"><i class="fas fa-star"></i> 奖励积分</label>
+                    <input type="number" id="awardPoints" required min="1" max="100" value="0" readonly>
+                    <small>
+                        <i class="fas fa-info-circle"></i> 积分值根据活动类型自动设置，范围1-100
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="activityTime"><i class="fas fa-clock"></i> 活动时间</label>
+                    <input type="datetime-local" id="activityTime" required>
+                    <small>
+                        <i class="fas fa-info-circle"></i> 请选择具体的活动日期和时间
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="location"><i class="fas fa-map-marker-alt"></i> 活动地点</label>
+                    <input type="text" id="location" placeholder="请输入活动地点（例如：学术报告厅）" required>
+                    <small>
+                        <i class="fas fa-info-circle"></i> 请详细填写活动地点，方便成员查找
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="maxParticipants"><i class="fas fa-user-friends"></i> 人数限制</label>
+                <input type="number" id="maxParticipants" value="50" min="1" max="1000">
+                <small>
+                    <i class="fas fa-info-circle"></i> 设置活动最大参与人数，0表示无限制
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="description"><i class="fas fa-file-alt"></i> 活动描述</label>
+                <textarea id="description" placeholder="请详细描述活动内容、流程、注意事项等..."></textarea>
+                <small>
+                    <i class="fas fa-info-circle"></i> 详细的活动描述有助于成员更好地了解活动
+                </small>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/dashboard.html'">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> 提交审核
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 全局变量
+    let currentUser = null;
+    let userClubs = [];
+    let activityTypes = [];
+
+    // 页面加载初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('创建活动页面开始初始化...');
+        checkLogin();
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+        console.log('当前用户信息:', currentUser);
+
+        // 只有社长才能创建活动
+        if (currentUser.role !== 'PRESIDENT') {
+            alert('您没有权限创建活动');
+            window.location.href = '/dashboard.html';
+            return;
+        }
+
+        // 加载社长管理的社团
+        loadPresidentClubs();
+        // 加载活动类型
+        loadActivityTypes();
+
+        // 设置事件监听
+        setupEventListeners();
+    }
+
+    // 加载社长管理的社团
+    async function loadPresidentClubs() {
+        try {
+            console.log('开始加载社长管理的社团...', currentUser.studentId);
+
+            const response = await fetch('/api/clubs/my-clubs', {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+            console.log('社团API响应:', result);
+
+            if (result.success && result.data) {
+                userClubs = result.data;
+                console.log('获取到的社团列表:', userClubs);
+
+                const clubSelect = document.getElementById('clubId');
+                clubSelect.innerHTML = '<option value="">请选择社团</option>';
+
+                userClubs.forEach(club => {
+                    const option = document.createElement('option');
+                    option.value = club.clubId;
+                    option.textContent = club.clubName;
+                    clubSelect.appendChild(option);
+                });
+
+                // 如果只有一个社团，自动选择
+                if (userClubs.length === 1) {
+                    clubSelect.value = userClubs[0].clubId;
+                }
+
+                console.log('社团下拉列表加载完成');
+            } else {
+                console.error('获取社团失败:', result.message);
+                showError('获取社团列表失败: ' + (result.message || '未知错误'));
+
+                // 使用模拟数据作为备选
+                loadFallbackClubs();
+            }
+        } catch (error) {
+            console.error('加载社团失败:', error);
+            showError('加载社团时发生错误: ' + error.message);
+
+            // 使用模拟数据作为备选
+            loadFallbackClubs();
+        }
+    }
+
+    // 加载活动类型
+    async function loadActivityTypes() {
+        try {
+            console.log('开始加载活动类型...');
+            const response = await fetch('/api/points/rules');
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                activityTypes = result.data;
+                const activityTypeSelect = document.getElementById('activityType');
+                activityTypeSelect.innerHTML = '<option value="">请选择活动类型</option>';
+
+                activityTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.activityType;
+                    option.textContent = `${type.activityType} (${type.basePointsValue}积分)`;
+                    option.setAttribute('data-points', type.basePointsValue);
+                    activityTypeSelect.appendChild(option);
+                });
+
+                console.log('活动类型加载完成:', activityTypes);
+            } else {
+                console.error('获取活动类型失败:', result.message);
+                // 使用默认活动类型作为备选
+                loadDefaultActivityTypes();
+            }
+        } catch (error) {
+            console.error('加载活动类型错误:', error);
+            // 使用默认活动类型作为备选
+            loadDefaultActivityTypes();
+        }
+    }
+
+    // 备选方案：使用默认活动类型
+    function loadDefaultActivityTypes() {
+        activityTypes = [
+            { activityType: '学术讲座', basePointsValue: 5 },
+            { activityType: '文体活动', basePointsValue: 3 },
+            { activityType: '志愿公益', basePointsValue: 8 },
+            { activityType: '竞赛获奖', basePointsValue: 10 },
+            { activityType: '社会实践', basePointsValue: 6 }
+        ];
+
+        const activityTypeSelect = document.getElementById('activityType');
+        activityTypeSelect.innerHTML = '<option value="">请选择活动类型</option>';
+
+        activityTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.activityType;
+            option.textContent = `${type.activityType} (${type.basePointsValue}积分)`;
+            option.setAttribute('data-points', type.basePointsValue);
+            activityTypeSelect.appendChild(option);
+        });
+    }
+
+    // 根据选择的活动类型更新积分值
+    function updateAwardPoints() {
+        const activityTypeSelect = document.getElementById('activityType');
+        const selectedOption = activityTypeSelect.options[activityTypeSelect.selectedIndex];
+        const points = selectedOption.getAttribute('data-points');
+
+        if (points) {
+            document.getElementById('awardPoints').value = points;
+        } else {
+            document.getElementById('awardPoints').value = '0';
+        }
+    }
+
+    // 备选方案：使用模拟社团数据
+    function loadFallbackClubs() {
+        console.log('使用模拟社团数据...');
+        // 根据当前登录的社长ID，只显示其管理的社团
+        if (currentUser.studentId === '2020001001') {
+            userClubs = [{ clubId: 1, clubName: '计算机协会' }];
+        } else if (currentUser.studentId === '2020002001') {
+            userClubs = [{ clubId: 2, clubName: '篮球社' }];
+        } else if (currentUser.studentId === '2020003001') {
+            userClubs = [{ clubId: 3, clubName: '音乐社' }];
+        } else {
+            userClubs = [];
+        }
+
+        const clubSelect = document.getElementById('clubId');
+        clubSelect.innerHTML = '<option value="">请选择社团</option>';
+        userClubs.forEach(club => {
+            const option = document.createElement('option');
+            option.value = club.clubId;
+            option.textContent = club.clubName;
+            clubSelect.appendChild(option);
+        });
+
+        // 如果只有一个社团，自动选择
+        if (userClubs.length === 1) {
+            clubSelect.value = userClubs[0].clubId;
+        }
+    }
+
+    // 显示错误消息
+    function showError(message) {
+        // 创建或显示错误消息元素
+        let errorDiv = document.getElementById('clubError');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'clubError';
+            errorDiv.className = 'error-message';
+            const clubSelectGroup = document.getElementById('clubSelectGroup');
+            clubSelectGroup.parentNode.insertBefore(errorDiv, clubSelectGroup.nextSibling);
+        }
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+        errorDiv.style.display = 'block';
+    }
+
+    // 设置事件监听
+    function setupEventListeners() {
+        // 创建活动表单提交
+        document.getElementById('createActivityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            createActivity();
+        });
+    }
+
+    // 创建活动
+    async function createActivity() {
+        const activityName = document.getElementById('activityName').value.trim();
+        const clubId = parseInt(document.getElementById('clubId').value);
+        const activityType = document.getElementById('activityType').value;
+        const activityTime = document.getElementById('activityTime').value;
+        const location = document.getElementById('location').value.trim();
+        const maxParticipants = parseInt(document.getElementById('maxParticipants').value);
+        const awardPoints = parseInt(document.getElementById('awardPoints').value);
+        const description = document.getElementById('description').value.trim();
+
+        // 表单验证
+        if (!activityName) {
+            alert('请输入活动名称');
+            return;
+        }
+
+        if (!clubId) {
+            alert('请选择所属社团');
+            return;
+        }
+
+        if (!activityType) {
+            alert('请选择活动类型');
+            return;
+        }
+
+        if (!activityTime) {
+            alert('请选择活动时间');
+            return;
+        }
+
+        if (!location) {
+            alert('请输入活动地点');
+            return;
+        }
+
+        if (!awardPoints || awardPoints < 1) {
+            alert('请选择有效的活动类型以设置积分');
+            return;
+        }
+
+        const formData = {
+            activityName: activityName,
+            clubId: clubId,
+            activityType: activityType, // 添加活动类型
+            activityTime: activityTime,
+            location: location,
+            maxParticipants: maxParticipants || 0,
+            awardPoints: awardPoints,
+            description: description
+        };
+
+        console.log('提交的活动数据:', formData);
+
+        try {
+            // 显示加载状态
+            const submitBtn = document.querySelector('#createActivityForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
+            submitBtn.disabled = true;
+
+            const response = await fetch('/api/activity-manage/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            console.log('创建活动响应:', result);
+
+            if (result.success) {
+                alert('🎉 活动创建成功！等待老师审核。');
+                window.location.href = '/dashboard.html';
+            } else {
+                alert('❌ 创建失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('创建活动错误:', error);
+            alert('❌ 创建活动时发生错误，请稍后重试: ' + error.message);
+        } finally {
+            // 恢复按钮状态
+            const submitBtn = document.querySelector('#createActivityForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交审核';
+            submitBtn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

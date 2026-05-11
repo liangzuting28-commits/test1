@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签到管理 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS变量定义 */
+        :root {
+            --primary-color: #667eea;
+            --primary-hover: #5a6fd8;
+            --success-color: #4CAF50;
+            --success-hover: #45a049;
+            --warning-color: #ff9800;
+            --warning-hover: #f57c00;
+            --danger-color: #f44336;
+            --danger-hover: #da190b;
+            --info-color: #2196F3;
+            --info-hover: #0b7dda;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #333;
+            --text-muted: #666;
+            --border-color: #e0e0e0;
+            --background-color: #f5f7fa;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            --border-radius: 10px;
+            --transition: all 0.3s ease;
+            /* 渐变背景 */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-danger: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+            --gradient-info: linear-gradient(135deg, #2196F3 0%, #0b7dda 100%);
+            --gradient-light: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            --gradient-dark: linear-gradient(135deg, #343a40 0%, #212529 100%);
+            /* 光泽效果 */
+            --shimmer: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+        }
+
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-top: 4px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        var(--gradient-primary) border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--shimmer);
+            transition: left 0.6s;
+        }
+
+        .header:hover::before {
+            left: 100%;
+        }
+
+        .header:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: var(--primary-color);
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-top: 4px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        var(--gradient-light) border-box;
+        }
+
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--shimmer);
+            transition: left 0.3s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        /* 按钮尺寸变体 */
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+
+        /* 活动网格布局 */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        /* 活动卡片样式 */
+        .activity-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+            border-top: 4px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(to right, var(--primary-color), var(--primary-color)) border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--shimmer);
+            transition: left 0.6s;
+        }
+
+        .activity-card:hover::before {
+            left: 100%;
+        }
+
+        .activity-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+            border-left-color: var(--primary-hover);
+        }
+
+        /* 活动头部 */
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        /* 活动信息 */
+        .activity-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item i {
+            color: var(--primary-color);
+            width: 16px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* 活动操作按钮 */
+        .activity-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .activity-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        /* 二维码容器 */
+        .qrcode-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .qrcode-image {
+            max-width: 300px;
+            margin: 0 auto 25px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 15px;
+            background: white;
+            transition: var(--transition);
+        }
+
+        .qrcode-image:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: scale(1.05);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: var(--border-radius);
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: rgba(102, 126, 234, 0.2);
+            transition: var(--transition);
+        }
+
+        .empty-state:hover i {
+            color: rgba(102, 126, 234, 0.4);
+            transform: scale(1.1);
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* 签到信息模态框样式 */
+        #checkInInfoModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow-hover);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--light-color);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .checkin-stat-item {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .checkin-stat-item .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .checkin-stat-item .stat-label {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .checkin-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .checkin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .checkin-table th,
+        .checkin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .checkin-table th {
+            background-color: var(--light-color);
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .checkin-table tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .checkin-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .checkin-status.checked-in {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
+        }
+
+        .checkin-status.not-checked {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .empty-state.error i {
+            color: var(--danger-color);
+        }
+
+        /* 动画定义 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-info {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-actions {
+                flex-direction: column;
+            }
+
+            .activity-actions .btn {
+                min-width: auto;
+            }
+
+            .qrcode-image {
+                max-width: 250px;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-qrcode"></i> 签到管理</h1>
+        <div>
+            <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+                <i class="fas fa-arrow-left"></i> 返回仪表盘
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-list"></i> 我的活动</h3>
+        
+        <!-- 搜索和筛选区域 -->
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <div style="position: relative;">
+                    <input type="text" id="activitySearch" placeholder="搜索活动名称、地点..." 
+                           style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <i class="fas fa-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #666; font-size: 16px;"></i>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: flex-end;">
+                <div>
+                    <label for="activityStatusFilter" style="display: block; margin-bottom: 8px; font-weight: 600; color: #343a40; font-size: 14px;">活动状态</label>
+                    <select id="activityStatusFilter" 
+                            style="padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: white; color: #333; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                        <option value="">全部状态</option>
+                        <option value="PENDING">待审核</option>
+                        <option value="PUBLISHED">已发布</option>
+                        <option value="REJECTED">已驳回</option>
+                        <option value="ENDED">已结束</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="searchResetBtn" class="btn btn-primary" style="margin-top: 25px;">
+                        <i class="fas fa-sync-alt"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="activitiesList" class="activity-grid">
+            <!-- 活动列表将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 二维码模态框 -->
+    <div id="qrcodeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;">
+        <div class="card" style="max-width: 500px; width: 95%; max-height: 80vh; overflow-y: auto; animation: slideIn 0.3s ease; border-top: 4px solid var(--primary-color);">
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--dark-color); font-size: 20px; font-weight: 700; text-align: center;">
+                <i class="fas fa-qrcode" style="color: var(--primary-color); margin-right: 10px;"></i>
+                活动签到二维码
+            </h3>
+            <div id="qrcodeContent" class="qrcode-container">
+                <!-- 二维码内容 -->
+            </div>
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-primary btn-lg" onclick="closeQRCodeModal()">
+                    <i class="fas fa-times"></i> 关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 签到情况模态框 -->
+    <div id="checkInInfoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;">
+        <div class="card" style="max-width: 800px; width: 95%; max-height: 80vh; overflow-y: auto; animation: slideIn 0.3s ease; border-top: 4px solid var(--primary-color);">
+            <div class="modal-header">
+                <h3 style="margin: 0; color: var(--dark-color); font-size: 20px; font-weight: 700;">
+                    <i class="fas fa-chart-bar" style="color: var(--primary-color); margin-right: 10px;"></i>
+                    签到情况
+                </h3>
+                <button class="modal-close" onclick="closeCheckInInfoModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div id="checkInSummary" style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <!-- 签到统计信息 -->
+                </div>
+                <div id="checkInDetails" style="margin-top: 20px;">
+                    <!-- 签到明细 -->
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <button class="btn btn-primary btn-lg" onclick="closeCheckInInfoModal()">
+                    <i class="fas fa-times"></i> 关闭
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let currentActivityId = null;
+    let checkInUpdateInterval = null;
+    let allActivities = [];
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        loadActivities();
+        
+        // 添加搜索和筛选事件监听器
+        const searchInput = document.getElementById('activitySearch');
+        const statusFilter = document.getElementById('activityStatusFilter');
+        const resetBtn = document.getElementById('searchResetBtn');
+        
+        // 搜索输入事件（延迟搜索）
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 300);
+        });
+        
+        // 状态筛选变化事件
+        statusFilter.addEventListener('change', applyFilters);
+        
+        // 重置按钮点击事件
+        resetBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            statusFilter.value = '';
+            applyFilters();
+        });
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 加载社长管理的活动
+    async function loadActivities() {
+        try {
+            const response = await fetch('/api/activity-manage/my-activities', {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+            const container = document.getElementById('activitiesList');
+
+            if (result.success && result.data.length > 0) {
+                allActivities = result.data;
+                applyFilters();
+            } else {
+                allActivities = [];
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>暂无活动</p>
+                        </div>
+                    `;
+            }
+        } catch (error) {
+            console.error('加载活动列表错误:', error);
+        }
+    }
+    
+    // 应用搜索和筛选条件
+    function applyFilters() {
+        const searchTerm = document.getElementById('activitySearch').value.toLowerCase();
+        const statusFilter = document.getElementById('activityStatusFilter').value;
+        const container = document.getElementById('activitiesList');
+        
+        let filteredActivities = allActivities;
+        
+        // 应用搜索过滤
+        if (searchTerm) {
+            filteredActivities = filteredActivities.filter(activity => {
+                return (
+                    activity.activityName.toLowerCase().includes(searchTerm) ||
+                    (activity.location && activity.location.toLowerCase().includes(searchTerm))
+                );
+            });
+        }
+        
+        // 应用状态过滤
+        if (statusFilter) {
+            filteredActivities = filteredActivities.filter(activity => activity.status === statusFilter);
+        } else {
+            // 默认只显示已发布的活动
+            filteredActivities = filteredActivities.filter(activity => activity.status === 'PUBLISHED');
+        }
+        
+        // 渲染过滤后的活动
+        if (filteredActivities.length > 0) {
+            container.innerHTML = filteredActivities.map(activity => `
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <div class="activity-title">${activity.activityName}</div>
+                        </div>
+                        <div class="activity-info">
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span>时间: ${formatDateTime(activity.activityTime)}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>地点: ${activity.location}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-star"></i>
+                                <span>积分: ${activity.awardPoints}</span>
+                            </div>
+                        </div>
+                        <div class="activity-actions">
+                            <button class="btn btn-success" onclick="generateQRCode(${activity.activityId})">
+                                <i class="fas fa-qrcode"></i> 生成签到码
+                            </button>
+                            <button class="btn btn-primary" onclick="viewCheckInInfo(${activity.activityId})">
+                                <i class="fas fa-chart-bar"></i> 查看签到情况
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>暂无符合条件的活动</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 生成二维码
+    async function generateQRCode(activityId) {
+        try {
+            const response = await fetch(`/api/checkin/activity/${activityId}/qrcode`);
+            const result = await response.json();
+
+            if (result.success) {
+                showQRCodeModal(result.data);
+            } else {
+                alert('生成二维码失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('生成二维码错误:', error);
+            alert('生成二维码时发生错误');
+        }
+    }
+
+    // 显示二维码模态框
+    function showQRCodeModal(data) {
+        const modal = document.getElementById('qrcodeModal');
+        const content = document.getElementById('qrcodeContent');
+
+        console.log("显示二维码数据:", data);
+
+        // 检查数据结构
+        const qrCode = data.qrCode || '';
+        const checkInNumber = data.checkInNumber || '';
+
+        content.innerHTML = `
+                <img src="${qrCode}" alt="签到二维码" class="qrcode-image">
+                <div style="margin: 15px 0; font-size: 18px; font-weight: bold;">
+                    签到数: <span style="color: #667eea; font-size: 24px;">${checkInNumber}</span>
+                </div>
+                <p>请让学生扫描此二维码或输入签到数进行签到</p>
+            `;
+
+        modal.style.display = 'flex';
+    }
+
+    // 关闭二维码模态框
+    function closeQRCodeModal() {
+        document.getElementById('qrcodeModal').style.display = 'none';
+    }
+
+    // 查看签到情况
+    async function viewCheckInInfo(activityId) {
+        try {
+            currentActivityId = activityId;
+            await loadCheckInInfo(activityId);
+            
+            // 打开模态框
+            const modal = document.getElementById('checkInInfoModal');
+            modal.style.display = 'flex';
+            
+            // 开始实时更新（每5秒）
+            checkInUpdateInterval = setInterval(() => {
+                loadCheckInInfo(activityId);
+            }, 5000);
+        } catch (error) {
+            console.error('获取签到信息错误:', error);
+            alert('获取签到信息时发生错误');
+        }
+    }
+    
+    // 加载签到信息
+    async function loadCheckInInfo(activityId) {
+        try {
+            const response = await fetch(`/api/checkin/activity/${activityId}/status`);
+            const result = await response.json();
+
+            if (result.success) {
+                const info = result.data;
+                updateCheckInSummary(info);
+                await loadCheckInDetails(activityId);
+            } else {
+                console.error('获取签到信息失败:', result.message);
+            }
+        } catch (error) {
+            console.error('获取签到信息错误:', error);
+        }
+    }
+    
+    // 更新签到统计摘要
+    function updateCheckInSummary(info) {
+        const summaryContainer = document.getElementById('checkInSummary');
+        summaryContainer.innerHTML = `
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--dark-color);">
+                <i class="fas fa-calendar-alt"></i> ${info.activity.activityName}
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                <div class="checkin-stat-item">
+                    <div class="stat-value">${info.totalParticipants}</div>
+                    <div class="stat-label">报名总人数</div>
+                </div>
+                <div class="checkin-stat-item">
+                    <div class="stat-value" style="color: var(--success-color);">${info.checkedInParticipants}</div>
+                    <div class="stat-label">已签到人数</div>
+                </div>
+                <div class="checkin-stat-item">
+                    <div class="stat-value" style="color: var(--warning-color);">${info.totalParticipants - info.checkedInParticipants}</div>
+                    <div class="stat-label">未签到人数</div>
+                </div>
+                <div class="checkin-stat-item">
+                    <div class="stat-value" style="color: var(--primary-color);">${(info.checkInRate * 100).toFixed(2)}%</div>
+                    <div class="stat-label">签到率</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 加载签到明细
+    async function loadCheckInDetails(activityId) {
+        try {
+            // 获取活动报名记录
+            const response = await fetch(`/api/activity-manage/activity/${activityId}/registrations`);
+            const result = await response.json();
+            
+            const detailsContainer = document.getElementById('checkInDetails');
+            
+            if (result.success && result.data.length > 0) {
+                detailsContainer.innerHTML = `
+                    <h4 style="margin-bottom: 15px; color: var(--dark-color);">
+                        <i class="fas fa-list"></i> 签到明细
+                    </h4>
+                    <div class="checkin-table-container">
+                        <table class="checkin-table">
+                            <thead>
+                                <tr>
+                                    <th>学号</th>
+                                    <th>姓名</th>
+                                    <th>签到状态</th>
+                                    <th>签到时间</th>
+                                    <th>签到方式</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.data.map(registration => `
+                                    <tr>
+                                        <td>${registration.studentId}</td>
+                                        <td>${registration.studentName}</td>
+                                        <td>
+                                            <span class="checkin-status ${registration.checkInStatus ? 'checked-in' : 'not-checked'}">
+                                                ${registration.checkInStatus ? '已签到' : '未签到'}
+                                            </span>
+                                        </td>
+                                        <td>${registration.checkInTime ? formatDateTime(registration.checkInTime) : '-'}</td>
+                                        <td>${registration.checkInMethod ? registration.checkInMethod : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                detailsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users-slash"></i>
+                        <p>暂无签到记录</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('加载签到明细错误:', error);
+            const detailsContainer = document.getElementById('checkInDetails');
+            detailsContainer.innerHTML = `
+                <div class="empty-state error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>加载签到明细失败</p>
+                </div>
+            `;
+        }
+    }
+    
+    // 关闭签到情况模态框
+    function closeCheckInInfoModal() {
+        const modal = document.getElementById('checkInInfoModal');
+        modal.style.display = 'none';
+        
+        // 清除实时更新定时器
+        if (checkInUpdateInterval) {
+            clearInterval(checkInUpdateInterval);
+            checkInUpdateInterval = null;
+        }
+        
+        currentActivityId = null;
+    }
+
+    // 工具函数
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN');
+    }
+</script>
+</body>
+</html>

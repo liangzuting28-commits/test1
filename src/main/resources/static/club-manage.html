@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社团管理 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入jsPDF库 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- 引入html2canvas用于支持中文渲染 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* 全局CSS变量 - 与其他页面保持一致 */        :root {            --primary-color: #667eea;            --primary-dark: #5a6fd8;            --secondary-color: #764ba2;            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);            --success-color: #48bb78;            --success-gradient: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);            --warning-color: #ed8936;            --warning-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);            --danger-color: #f56565;            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);            --info-color: #06b6d4;            --info-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);            --text-primary: #2d3748;            --text-secondary: #4a5568;            --text-light: #9ca3af;            --light-gray: #f7fafc;            --medium-gray: #e2e8f0;            --dark-gray: #4a5568;            --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            --card-bg: #ffffff;            --card-bg-hover: #fefefe;            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);            --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.12);            --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.16);            --shadow-hover: 0 25px 50px rgba(0, 0, 0, 0.2);            --radius-sm: 8px;            --radius-md: 12px;            --radius-lg: 20px;            --radius-xl: 25px;            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);            --transition-fast: all 0.2s ease;            --border-color: #e5e7eb;        }
+
+        /* 全局样式 */        * {            margin: 0;            padding: 0;            box-sizing: border-box;            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;        }
+        
+        body {
+            background: var(--bg-color);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding: 20px 0;
+        }
+
+        /* 容器 */        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 页面头部 */        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+        
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* 头部 */        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            background: var(--card-bg);
+            padding: 28px 35px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border-top: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .header:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .header h1 {
+            font-size: 30px;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header h1 i {
+            color: var(--primary-color);
+            font-size: 34px;
+        }
+
+        /* 标签页 */        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 10px;
+            box-shadow: var(--shadow-lg);
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 18px 24px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tab:hover::before {
+            left: 100%;
+        }
+        
+        .tab:hover {
+            background: #f1f5f9;
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        
+        .tab.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+        
+        .tab i {
+            font-size: 18px;
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 卡片 */        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #f3f4f6;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            background: var(--card-bg-hover);
+        }
+        
+        .card h3 {
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .card h3 i {
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .card-header h3 {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        /* 按钮样式 */        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-sm {
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+        
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 16px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info-gradient);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 13px;
+        }
+        
+        .btn-lg {
+            padding: 18px 36px;
+            font-size: 17px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            transition: var(--transition);
+            background: var(--light-gray);
+            color: var(--text-primary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            height: 140px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        /* 社团网格 */
+        .club-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .club-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+            min-height: 300px;
+            min-width: 350px;
+        }
+
+        .club-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .club-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+        
+        .club-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        /* 社团卡片内容 */
+        .club-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .club-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .club-type {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .club-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-inactive {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .club-info {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .info-item i {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        .club-description {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* 社长信息样式 */
+        .club-president {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .club-president h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .president-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        /* 成员列表样式 */
+        .club-members {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .club-members h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 成员卡片网格样式 */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .member-card {
+            display: flex;
+            align-items: flex-start;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* 为不同角色添加特殊样式 */
+        .member-card[data-role="president"] {
+            border-left: 4px solid rgba(243, 156, 18, 0.8);
+        }
+
+        .member-card[data-role="manager"] {
+            border-left: 4px solid rgba(52, 152, 219, 0.8);
+        }
+
+        .member-card[data-role="member"] {
+            border-left: 4px solid rgba(39, 174, 96, 0.8);
+        }
+
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+        }
+
+        .member-student-id,
+        .member-college,
+        .member-major,
+        .member-phone,
+        .member-join-date {
+            font-size: 14px;
+            margin: 4px 0;
+            color: var(--text-secondary);
+        }
+
+        .member-role {
+            margin-left: auto;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        /* 角色标签样式 */
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-badge[data-role="president"] {
+            background-color: rgba(243, 156, 18, 0.8);
+            color: white;
+        }
+
+        .role-badge[data-role="manager"] {
+            background-color: rgba(52, 152, 219, 0.8);
+            color: white;
+        }
+
+        .role-badge[data-role="member"] {
+            background-color: rgba(39, 174, 96, 0.8);
+            color: white;
+        }
+
+        .no-members {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .club-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #e5e7eb;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 35px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .modal-header h3 {
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            background: #f8fafc;
+            color: var(--text-primary);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .club-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .club-card {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .tab {
+                padding: 12px 15px;
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        .members-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .member-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .member-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .member-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .member-role {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .role-president {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .role-manager {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .role-member {
+            background: #e9ecef;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .club-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .club-actions {
+                flex-direction: column;
+            }
+
+            .club-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 头部 -->
+    <div class="header">
+        <h1><i class="fas fa-users"></i> 社团管理中心</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+            <i class="fas fa-arrow-left"></i> 返回仪表盘
+        </button>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('my-clubs')">
+            <i class="fas fa-list"></i> 我的社团
+        </div>
+        <div class="tab" onclick="switchTab('all-clubs')">
+            <i class="fas fa-school"></i> 所有社团
+        </div>
+    </div>
+
+    <!-- 我的社团 -->
+    <div id="my-clubs" class="content-section active">
+        <!-- 社长显示我管理的社团 -->
+        <div id="presidentClubs" class="card">
+            <h3><i class="fas fa-list"></i> 我管理的社团</h3>
+            <div class="search-box">
+                <input type="text" id="searchMyClubs" placeholder="搜索我的社团..." oninput="searchMyClubs()">
+            </div>
+            <div id="myClubsList" class="club-grid">
+                <!-- 动态生成社团列表 -->
+            </div>
+        </div>
+        
+        <!-- 学生显示我加入的社团 -->
+        <div id="studentClubs" class="card" style="display:none;">
+            <h3><i class="fas fa-users"></i> 我加入的社团</h3>
+            <div class="search-box">
+                <input type="text" id="searchJoinedClubs" placeholder="搜索我加入的社团..." oninput="searchJoinedClubs()">
+            </div>
+            <div id="joinedClubsList" class="club-grid">
+                <!-- 动态生成我加入的社团列表 -->
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <!-- 所有社团 -->
+    <div id="all-clubs" class="content-section">
+        <div class="card">
+            <h3><i class="fas fa-school"></i> 所有社团</h3>
+            <div class="search-box">
+                <input type="text" id="searchAllClubs" placeholder="搜索所有社团..." oninput="searchAllClubs()">
+            </div>
+            <div id="allClubsList" class="club-grid">
+                <!-- 动态生成所有社团列表 -->
+            </div>
+        </div>
+    </div>
+    
+
+    
+
+
+
+</div>
+
+<!-- 社团详情模态框 -->
+<div id="clubDetailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle"></i> 社团详情</h3>
+            <button class="modal-close" onclick="closeClubDetailModal()">&times;</button>
+        </div>
+        <div id="clubDetailContent">
+            <!-- 动态生成社团详情 -->
+        </div>
+    </div>
+</div>
+
+<!-- 管理社长模态框 -->
+<div id="managePresidentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-cog"></i> 管理社长</h3>
+            <button class="modal-close" onclick="closeManagePresidentModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="currentPresident">当前社长</label>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="currentPresident" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="newPresidentId">新社长学号</label>
+                <div class="input-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="newPresidentId" placeholder="输入新社长学号" oninput="fetchStudentName(this.value)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="newPresidentName">新社长姓名</label>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="newPresidentName" readonly placeholder="系统自动填充">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="changePresident()">
+                    <i class="fas fa-exchange-alt"></i> 更换社长
+                </button>
+                <button class="btn btn-danger" onclick="removePresident()">
+                    <i class="fas fa-user-minus"></i> 移除社长
+                </button>
+                <button class="btn btn-secondary" onclick="closeManagePresidentModal()">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 成员管理模态框 -->
+<div id="memberManageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-users-cog"></i> 成员管理</h3>
+            <button class="modal-close" onclick="closeMemberManageModal()">&times;</button>
+        </div>
+        <div id="memberManageContent">
+            <!-- 动态生成成员管理内容 -->
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    let currentUser = null;
+    let currentClubId = null;
+    let allClubs = [];
+    let myClubs = [];
+
+    // 页面加载初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+
+        // 根据用户角色显示/隐藏标签
+        if (currentUser.role === 'TEACHER') {
+            // 隐藏"我的社团"标签
+            const myClubsTab = Array.from(document.querySelectorAll('.tab')).find(tab =>
+                tab.textContent.includes('我的社团')
+            );
+            if (myClubsTab) {
+                myClubsTab.style.display = 'none';
+            }
+
+            // 将"所有社团"设为默认标签
+            document.getElementById('all-clubs').classList.add('active');
+            document.getElementById('my-clubs').classList.remove('active');
+
+            const allClubsTab = Array.from(document.querySelectorAll('.tab')).find(tab =>
+                tab.textContent.includes('所有社团')
+            );
+            if (allClubsTab) {
+                allClubsTab.classList.add('active');
+            }
+
+            // 加载所有社团数据
+            loadAllClubs();
+        } else {
+            loadMyClubs();
+        }
+
+        // 根据用户角色显示/隐藏创建社团标签
+        if (currentUser.role === 'TEACHER') {
+            // 为教师添加创建社团标签
+            const tabsContainer = document.querySelector('.tabs');
+            const createClubTab = document.createElement('div');
+            createClubTab.className = 'tab';
+            createClubTab.setAttribute('onclick', "switchTab('create-club')");
+            createClubTab.innerHTML = '<i class="fas fa-plus-circle"></i> 创建社团';
+
+            // 在"所有社团"标签前插入创建社团标签
+            const allClubsTab = Array.from(tabsContainer.children).find(tab =>
+                tab.textContent.includes('所有社团')
+            );
+            if (allClubsTab) {
+                tabsContainer.insertBefore(createClubTab, allClubsTab);
+            }
+
+            // 添加创建社团内容区域
+            const mainContainer = document.querySelector('.container');
+            const createClubSection = document.createElement('div');
+            createClubSection.id = 'create-club';
+            createClubSection.className = 'content-section';
+            createClubSection.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-plus-circle"></i> 创建新社团</h3>
+                    <form id="createClubForm">
+                        <div class="form-group">
+                            <label for="clubName"><i class="fas fa-heading"></i> 社团名称</label>
+                            <input type="text" id="clubName" placeholder="请输入社团名称" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clubType"><i class="fas fa-tag"></i> 社团类型</label>
+                            <select id="clubType" required>
+                                <option value="">请选择社团类型</option>
+                                <option value="学术科技">学术科技</option>
+                                <option value="文化体育">文化体育</option>
+                                <option value="艺术表演">艺术表演</option>
+                                <option value="志愿公益">志愿公益</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="introduction"><i class="fas fa-file-alt"></i> 社团介绍</label>
+                            <textarea id="introduction" placeholder="请简要介绍社团的宗旨、活动内容等..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactInfo"><i class="fas fa-phone"></i> 联系方式</label>
+                            <input type="text" id="contactInfo" placeholder="请输入联系电话或微信等">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="logoUrl"><i class="fas fa-image"></i> 社团Logo URL</label>
+                            <input type="text" id="logoUrl" placeholder="请输入社团Logo的URL地址（可选）">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="presidentId"><i class="fas fa-user"></i> 指定社长</label>
+                            <input type="text" id="presidentId" placeholder="请输入社长学号" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 创建社团
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            // 在"我的社团"内容区域后插入创建社团内容区域
+            const myClubsSection = document.getElementById('my-clubs');
+            mainContainer.insertBefore(createClubSection, myClubsSection.nextSibling);
+
+            // 添加创建社团的事件监听器
+            document.getElementById('createClubForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const clubName = document.getElementById('clubName').value.trim();
+                const clubType = document.getElementById('clubType').value;
+                const introduction = document.getElementById('introduction').value.trim();
+                const contactInfo = document.getElementById('contactInfo').value.trim();
+                const logoUrl = document.getElementById('logoUrl').value.trim();
+                const presidentId = document.getElementById('presidentId').value.trim();
+
+                if (!clubName) {
+                    alert('请输入社团名称');
+                    return;
+                }
+
+                if (!clubType) {
+                    alert('请选择社团类型');
+                    return;
+                }
+
+                if (!presidentId) {
+                    alert('请指定社长');
+                    return;
+                }
+
+                const formData = {
+                    clubName: clubName,
+                    clubType: clubType,
+                    introduction: introduction,
+                    contactInfo: contactInfo,
+                    logoUrl: logoUrl,
+                    presidentId: presidentId
+                };
+
+                try {
+                    const response = await fetch('/api/clubs', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-Id': currentUser.studentId
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('🎉 社团创建成功！');
+                        document.getElementById('createClubForm').reset();
+                        switchTab('my-clubs');
+                        loadMyClubs();
+                    } else {
+                        alert('❌ 创建失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('创建社团错误:', error);
+                    alert('❌ 创建社团时发生错误，请稍后重试');
+                }
+            });
+        }
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 切换标签页
+    function switchTab(tabName) {
+        // 隐藏所有内容区域
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // 移除所有标签的active类
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // 显示选中的内容区域
+        document.getElementById(tabName).classList.add('active');
+
+        // 为选中的标签添加active类
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+
+        // 加载对应标签的数据
+        if (tabName === 'my-clubs') {
+            // 只有非教师角色才加载我的社团
+            if (currentUser.role !== 'TEACHER') {
+                loadMyClubs();
+            }
+        } else if (tabName === 'all-clubs') {
+            loadAllClubs();
+        }
+    }
+
+    // 加载我的社团
+    // 显示加载状态
+    function showLoadingState(containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+            <div class="empty-state">
+                <div style="display: flex; justify-content: center; align-items: center; height: 150px;">
+                    <div class="loading-spinner" style="border: 4px solid rgba(102, 126, 234, 0.3); border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-left: 15px; font-size: 16px; color: #667eea;">加载中...</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // 定义旋转动画
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    async function loadMyClubs() {
+        // 根据用户角色显示不同的内容
+        if (currentUser.role === 'PRESIDENT') {
+            // 社长显示自己管理的社团
+            document.getElementById('presidentClubs').style.display = 'block';
+            document.getElementById('studentClubs').style.display = 'none';
+            
+            const container = document.getElementById('myClubsList');
+            showLoadingState('myClubsList');
+            
+            try {
+                const response = await fetch('/api/clubs/my-clubs', {
+                    headers: {
+                        'X-User-Id': currentUser.studentId
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    myClubs = result.data;
+                    displayMyClubs(myClubs);
+                } else {
+                    container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>暂无管理的社团</p>
+                                <p>创建第一个社团，开始您的社团管理之旅</p>
+                            </div>
+                        `;
+                }
+            } catch (error) {
+                console.error('加载我的社团错误:', error);
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>加载失败</p>
+                            <p>请检查网络连接后重试</p>
+                            <button class="btn btn-primary" onclick="loadMyClubs()">
+                                <i class="fas fa-sync"></i> 重新加载
+                            </button>
+                        </div>
+                    `;
+            }
+        } else if (currentUser.role === 'STUDENT') {
+            // 学生显示自己加入的社团
+            document.getElementById('presidentClubs').style.display = 'none';
+            document.getElementById('studentClubs').style.display = 'block';
+            
+            const container = document.getElementById('joinedClubsList');
+            showLoadingState('joinedClubsList');
+            
+            try {
+                const response = await fetch(`/api/member-manage/student/${currentUser.studentId}/clubs`);
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    displayJoinedClubs(result.data);
+                } else {
+                    container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>您还未加入任何社团</p>
+                                <p>快去"所有社团"页面申请加入感兴趣的社团吧！</p>
+                            </div>
+                        `;
+                }
+            } catch (error) {
+                console.error('加载我加入的社团错误:', error);
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>加载失败</p>
+                            <p>请检查网络连接后重试</p>
+                            <button class="btn btn-primary" onclick="loadMyClubs()">
+                                <i class="fas fa-sync"></i> 重新加载
+                            </button>
+                        </div>
+                    `;
+            }
+        }
+    }
+
+    // 显示我的社团
+    function displayMyClubs(clubs) {
+        const container = document.getElementById('myClubsList');
+
+        if (clubs.length > 0) {
+            container.innerHTML = clubs.map(club => {
+                return `
+                        <div class="club-card">
+                            <div class="club-header">
+                                <div>
+                                    <div class="club-title">${club.clubName}</div>
+                                    <div class="club-type">${club.clubType}</div>
+                                </div>
+                                <div class="club-status status-active">${club.status || 'ACTIVE'}</div>
+                            </div>
+                            <div class="club-info">
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>社长: ${club.presidentDetail?.studentName || club.presidentId}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>创建时间: ${formatDateTime(club.createdAt)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>联系方式: ${club.contactInfo || '暂无'}</span>
+                                </div>
+                            </div>
+                            <div class="club-description">
+                                ${club.introduction || '暂无详细介绍'}
+                            </div>
+                            <div class="club-actions">
+                                <button class="btn btn-primary" onclick="viewClubDetail(${club.clubId})">
+                                    <i class="fas fa-info-circle"></i> 详情
+                                </button>
+                                <button class="btn btn-success" onclick="manageMembers(${club.clubId})">
+                                    <i class="fas fa-users"></i> 成员管理
+                                </button>
+                                <button class="btn btn-warning" onclick="editClub(${club.clubId})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+
+
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users-slash"></i>
+                        <p>暂无管理的社团</p>
+                        <p>创建第一个社团，开始您的社团管理之旅</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 搜索我的社团
+    function searchMyClubs() {
+        const searchTerm = document.getElementById('searchMyClubs').value.toLowerCase();
+        const filteredClubs = myClubs.filter(club =>
+            club.clubName.toLowerCase().includes(searchTerm) ||
+            club.clubType.toLowerCase().includes(searchTerm) ||
+            (club.introduction && club.introduction.toLowerCase().includes(searchTerm))
+        );
+        displayMyClubs(filteredClubs);
+    }
+    
+    // 显示学生加入的社团
+    function displayJoinedClubs(clubs) {
+        const container = document.getElementById('joinedClubsList');
+        let joinedClubs = [];
+
+        if (clubs.length > 0) {
+            joinedClubs = clubs;
+            container.innerHTML = clubs.map(club => {
+                const statusClass = club.applicationStatus === 'APPROVED' ? 'status-approved' : 'status-pending';
+                const statusText = club.applicationStatus === 'APPROVED' ? '已通过' : '待审核';
+                
+                return `
+                        <div class="club-card">
+                            <div class="club-header">
+                                <div>
+                                    <div class="club-title">${club.clubName}</div>
+                                    <div class="club-type">${club.clubType}</div>
+                                </div>
+                                <div class="club-status ${statusClass}">${statusText}</div>
+                            </div>
+                            <div class="club-info">
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>社长: ${club.presidentDetail?.studentName || club.presidentName || club.presidentId}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>加入时间: ${formatDateTime(club.joinDate)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>联系方式: ${club.contactInfo || '暂无'}</span>
+                                </div>
+                            </div>
+                            <div class="club-description">
+                                ${club.introduction || '暂无详细介绍'}
+                            </div>
+                            <div class="club-actions">
+                                <button class="btn btn-primary" onclick="viewClubDetail(${club.clubId})">
+                                    <i class="fas fa-info-circle"></i> 详情
+                                </button>
+                                ${club.applicationStatus === 'APPROVED' ? 
+                                    `<button class="btn btn-warning" onclick="leaveClub(${club.clubId})">
+                                        <i class="fas fa-sign-out-alt"></i> 申请退出
+                                    </button>` : 
+                                    club.applicationStatus === 'PENDING_LEAVE' ? 
+                                    `<button class="btn btn-secondary" disabled>
+                                        <i class="fas fa-clock"></i> 退出申请中
+                                    </button>` :
+                                    `<button class="btn btn-danger" onclick="cancelApplication(${club.clubId})">
+                                        <i class="fas fa-times"></i> 取消申请
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users-slash"></i>
+                        <p>您还未加入任何社团</p>
+                        <p>快去"所有社团"页面申请加入感兴趣的社团吧！</p>
+                    </div>
+                `;
+        }
+    }
+    
+    // 搜索加入的社团
+    function searchJoinedClubs() {
+        const searchTerm = document.getElementById('searchJoinedClubs').value.toLowerCase();
+        const filteredClubs = joinedClubs.filter(club =>
+            club.clubName.toLowerCase().includes(searchTerm) ||
+            club.clubType.toLowerCase().includes(searchTerm) ||
+            (club.introduction && club.introduction.toLowerCase().includes(searchTerm))
+        );
+        displayJoinedClubs(filteredClubs);
+    }
+    
+    // 退出社团
+    async function leaveClub(clubId) {
+        // 显示退出申请表单
+        const reason = prompt('请输入退出社团的原因（必填）:');
+        if (!reason || reason.trim() === '') {
+            alert('请输入退出原因');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/member-manage/club/${clubId}/member/${currentUser.studentId}/request-leave`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify({
+                    reason: reason.trim()
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('退出申请已提交，等待社长审批');
+                loadMyClubs(); // 重新加载社团列表
+            } else {
+                alert('申请失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('申请退出社团错误:', error);
+            alert('申请退出社团时发生错误');
+        }
+        
+        // 关闭模态框的事件
+        const closeModal = () => {
+            document.body.removeChild(overlay);
+        };
+        
+        modal.querySelector('.close').onclick = closeModal;
+        modal.querySelector('#cancelLeave').onclick = closeModal;
+        
+        // 提交申请的事件
+        modal.querySelector('#submitLeave').onclick = async () => {
+            const reason = document.getElementById('leaveReason').value.trim();
+            if (!reason) {
+                alert('请输入退出原因');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/member-manage/club/${clubId}/member/${currentUser.studentId}/request-leave`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': currentUser.studentId
+                    },
+                    body: JSON.stringify({
+                        reason: reason
+                    })
+                });
+
+                const result = await response.json();
+                console.log('API响应:', result); // 添加调试日志
+
+                if (result.success) {
+                    closeModal();
+                    showNotification('退出申请已提交，等待社长审批', 'success');
+                    loadMyClubs(); // 重新加载社团列表
+                } else {
+                    showNotification('申请失败: ' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('申请退出社团错误:', error);
+                showNotification('申请退出社团时发生错误: ' + error.message, 'error');
+            }
+        };
+    }
+    
+    // 显示通知的函数
+    function showNotification(message, type = 'info') {
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        // 根据类型设置背景色
+        switch(type) {
+            case 'success':
+                notification.style.backgroundColor = '#28a745';
+                break;
+            case 'error':
+                notification.style.backgroundColor = '#dc3545';
+                break;
+            case 'warning':
+                notification.style.backgroundColor = '#ffc107';
+                notification.style.color = '#333';
+                break;
+            default:
+                notification.style.backgroundColor = '#17a2b8';
+        }
+        
+        notification.textContent = message;
+        
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 添加到页面
+        document.body.appendChild(notification);
+        
+        // 3秒后自动消失
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+    
+    // 取消申请
+    async function cancelApplication(clubId) {
+        if (!confirm('确定要取消申请吗？')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/club-memberships/club/${clubId}/member/${currentUser.studentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify({
+                    reason: '学生取消申请'
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('取消申请成功');
+                loadMyClubs(); // 重新加载社团列表
+            } else {
+                alert('取消失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('取消申请错误:', error);
+            alert('取消申请时发生错误');
+        }
+    }
+
+    // 加载所有社团
+    async function loadAllClubs() {
+        const container = document.getElementById('allClubsList');
+        showLoadingState('allClubsList');
+        
+        try {
+            const response = await fetch('/api/clubs');
+            const result = await response.json();
+
+            if (result.success && result.data && result.data.length > 0) {
+                allClubs = result.data;
+                displayAllClubs(allClubs);
+            } else {
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-school"></i>
+                            <p>暂无社团</p>
+                        </div>
+                    `;
+            }
+        } catch (error) {
+            console.error('加载所有社团错误:', error);
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>加载失败</p>
+                        <p>请检查网络连接后重试</p>
+                        <button class="btn btn-primary" onclick="loadAllClubs()">
+                            <i class="fas fa-sync"></i> 重新加载
+                        </button>
+                    </div>
+                `;
+        }
+    }
+
+    // 显示所有社团
+    function displayAllClubs(clubs) {
+        const container = document.getElementById('allClubsList');
+
+        if (clubs.length > 0) {
+            container.innerHTML = clubs.map(club => {
+                return `
+                        <div class="club-card">
+                            <div class="club-header">
+                                <div>
+                                    <div class="club-title">${club.clubName}</div>
+                                    <div class="club-type">${club.clubType}</div>
+                                </div>
+                                <div class="club-status status-active">${club.status || 'ACTIVE'}</div>
+                            </div>
+                            <div class="club-info">
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>社长: ${club.presidentId}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>创建时间: ${formatDateTime(club.createdAt)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>联系方式: ${club.contactInfo || '暂无'}</span>
+                                </div>
+                            </div>
+                            <div class="club-description">
+                                ${club.introduction || '暂无详细介绍'}
+                            </div>
+                            <div class="club-actions">
+                                <button class="btn btn-primary" onclick="viewClubDetail(${club.clubId})">
+                                    <i class="fas fa-info-circle"></i> 详情
+                                </button>
+                                ${currentUser.role === 'STUDENT' ? `
+                                <button class="btn btn-success" onclick="applyForClub(${club.clubId})">
+                                    <i class="fas fa-user-plus"></i> 申请加入
+                                </button>` : ''}
+                                ${currentUser.role === 'TEACHER' ? `
+                                <button class="btn btn-warning" onclick="managePresident(${club.clubId}, '${club.presidentId}', '${club.presidentDetail?.studentName || club.presidentId}')">
+                                    <i class="fas fa-user-cog"></i> 管理社长
+                                </button>
+                                <button class="btn btn-info" onclick="exportClubToPDF(${club.clubId})">
+                                    <i class="fas fa-file-pdf"></i> 导出PDF
+                                </button>` : ''}
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-school"></i>
+                        <p>暂无社团</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 搜索所有社团
+    function searchAllClubs() {
+        const searchTerm = document.getElementById('searchAllClubs').value.toLowerCase();
+        const filteredClubs = allClubs.filter(club =>
+            club.clubName.toLowerCase().includes(searchTerm) ||
+            club.clubType.toLowerCase().includes(searchTerm) ||
+            (club.introduction && club.introduction.toLowerCase().includes(searchTerm))
+        );
+        displayAllClubs(filteredClubs);
+    }
+
+    // 管理社长相关变量
+    let currentManageClubId = null;
+    let currentPresidentId = null;
+    let currentPresidentName = null;
+
+    // 打开管理社长模态框
+    function managePresident(clubId, presidentId, presidentName) {
+        currentManageClubId = clubId;
+        currentPresidentId = presidentId;
+        currentPresidentName = presidentName;
+        
+        // 填充当前社长信息
+        document.getElementById('currentPresident').value = `${currentPresidentName} (${currentPresidentId})`;
+        document.getElementById('newPresidentId').value = '';
+        document.getElementById('newPresidentName').value = '';
+        
+        // 打开模态框
+        document.getElementById('managePresidentModal').style.display = 'block';
+    }
+
+    // 关闭管理社长模态框
+    function closeManagePresidentModal() {
+        document.getElementById('managePresidentModal').style.display = 'none';
+        currentManageClubId = null;
+        currentPresidentId = null;
+        currentPresidentName = null;
+    }
+
+    // 根据学号获取学生姓名
+    async function fetchStudentName(studentId) {
+        const nameInput = document.getElementById('newPresidentName');
+        
+        if (!studentId) {
+            nameInput.value = '';
+            nameInput.placeholder = '系统自动填充';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/students/${studentId}`, {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            
+            if (response.ok) {
+                const student = await response.json();
+                nameInput.value = student.name;
+            } else {
+                nameInput.value = '';
+                nameInput.placeholder = '未找到该学生';
+            }
+        } catch (error) {
+            console.error('获取学生信息错误:', error);
+            nameInput.value = '';
+            nameInput.placeholder = '获取失败，请重试';
+        }
+    }
+    
+    // 更换社长
+    async function changePresident() {
+        const newPresidentId = document.getElementById('newPresidentId').value.trim();
+        
+        if (!newPresidentId) {
+            alert('请输入新社长学号');
+            return;
+        }
+        
+        if (newPresidentId === currentPresidentId) {
+            alert('新社长学号与当前社长相同');
+            return;
+        }
+        
+        if (!confirm(`确定要将社团ID ${currentManageClubId} 的社长从 ${currentPresidentName} 更换为学号 ${newPresidentId} 的学生吗？`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/clubs/${currentManageClubId}/president`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify({ newPresidentId })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('社长更换成功！');
+                closeManagePresidentModal();
+                // 重新加载所有社团数据以更新显示
+                loadAllClubs();
+                // 如果当前在"我的社团"标签页，也刷新一下
+                if (document.getElementById('my-clubs').classList.contains('active')) {
+                    loadMyClubs();
+                }
+            } else {
+                alert('社长更换失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('更换社长错误:', error);
+            alert('更换社长时发生错误，请重试');
+        }
+    }
+
+    // 移除社长
+    async function removePresident() {
+        if (!confirm(`确定要移除社团ID ${currentManageClubId} 的社长 ${currentPresidentName} 吗？移除后该社团将没有社长。`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/clubs/${currentManageClubId}/president`, {
+                method: 'DELETE',
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('社长移除成功！');
+                closeManagePresidentModal();
+                // 重新加载所有社团数据以更新显示
+                loadAllClubs();
+                // 如果当前在"我的社团"标签页，也刷新一下
+                if (document.getElementById('my-clubs').classList.contains('active')) {
+                    loadMyClubs();
+                }
+            } else {
+                alert('社长移除失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('移除社长错误:', error);
+            alert('移除社长时发生错误，请重试');
+        }
+    }
+    
+    // 学生申请加入社团
+    async function applyForClub(clubId) {
+        if (!confirm('确定要申请加入这个社团吗？')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/clubs/${clubId}/apply`, {
+                method: 'POST',
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('申请提交成功，等待社长审核！');
+                // 重新加载所有社团，更新状态
+                loadAllClubs();
+                // 如果当前在"我的申请"标签页，也刷新一下
+                const myApplicationsTab = document.querySelector('.tab[onclick*="my-applications"]');
+                if (myApplicationsTab && myApplicationsTab.classList.contains('active')) {
+                    loadMyApplications();
+                }
+            } else {
+                alert('申请失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('申请加入社团错误:', error);
+            alert('申请时发生错误');
+        }
+    }
+    
+
+
+
+
+
+
+    // 查看社团详情
+    async function viewClubDetail(clubId) {
+        try {
+            const response = await fetch(`/api/clubs/${clubId}/detail`);
+            const result = await response.json();
+
+            if (result.success) {
+                const club = result.data;
+                const modal = document.getElementById('clubDetailModal');
+                const content = document.getElementById('clubDetailContent');
+
+                content.innerHTML = `
+                        <div class="club-info">
+                            <div class="info-item">
+                                <i class="fas fa-heading"></i>
+                                <span><strong>社团名称:</strong> ${club.clubName}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-tag"></i>
+                                <span><strong>社团类型:</strong> ${club.clubType}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span><strong>成员数量:</strong> ${club.memberCount} 人</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span><strong>创建时间:</strong> ${formatDateTime(club.createdAt)}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <span><strong>联系方式:</strong> ${club.contactInfo || '暂无'}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 社长详细信息 -->
+                        <div class="club-president">
+                            <h4><i class="fas fa-user-tie"></i> 社长信息</h4>
+                            <div class="president-details">
+                                <div class="info-item">
+                                    <i class="fas fa-id-card"></i>
+                                    <span><strong>学号:</strong> ${club.presidentDetail?.studentId || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span><strong>姓名:</strong> ${club.presidentDetail?.studentName || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-university"></i>
+                                    <span><strong>学院:</strong> ${club.presidentDetail?.college || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span><strong>专业班级:</strong> ${club.presidentDetail?.majorClass || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span><strong>联系电话:</strong> ${club.presidentDetail.phone || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span><strong>邮箱:</strong> ${club.presidentDetail.email || '暂无'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    <span><strong>加入时间:</strong> ${formatDateTime(club.presidentDetail.joinDate)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 成员列表 -->
+                        <div class="club-members">
+                            <h4><i class="fas fa-users"></i> 成员列表</h4>
+                            <div class="members-grid">
+                                ${club.members?.map(member => {
+                                    const roleText = member.role === 'president' ? '社长' : member.role === 'manager' ? '管理员' : '成员';
+                                    // 生成基于姓名首字母的头像
+                                    const initial = member.name ? member.name.charAt(0).toUpperCase() : '?';
+                                    return `
+                                        <div class="member-card" data-role="${member.role}">
+                                            <div class="member-avatar">${initial}</div>
+                                            <div class="member-info">
+                                                <h5 class="member-name">${member.name}</h5>
+                                                <p class="member-student-id">学号: ${member.studentId}</p>
+                                                <p class="member-college">学院: ${member.college || '暂无'}</p>
+                                                <p class="member-major">专业班级: ${member.majorClass || '暂无'}</p>
+                                                <p class="member-phone">电话: ${member.phone || '暂无'}</p>
+                                                <p class="member-join-date">加入时间: ${formatDateTime(member.joinDate)}</p>
+                                            </div>
+                                            <div class="member-role">
+                                                <span class="role-badge" data-role="${member.role}">${roleText}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') || '<div class="no-members">暂无成员信息</div>'}
+                            </div>
+                        </div>
+                        
+                        <div class="club-description">
+                            <strong>社团介绍:</strong><br>
+                            ${club.introduction || '暂无详细介绍'}
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary" onclick="closeClubDetailModal()">
+                                <i class="fas fa-times"></i> 关闭
+                            </button>
+                        </div>
+                    `;
+
+                modal.style.display = 'flex';
+            } else {
+                alert('获取社团详情失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('获取社团详情错误:', error);
+            alert('获取社团详情时发生错误');
+        }
+    }
+
+    // 管理成员 - 跳转到专门的成员管理页面
+    function manageMembers(clubId) {
+        // 跳转到成员管理页面，并传递社团ID
+        window.location.href = `member-manage.html?clubId=${clubId}`;
+    }
+
+
+
+
+
+    // 关闭模态框
+    function closeClubDetailModal() {
+        document.getElementById('clubDetailModal').style.display = 'none';
+    }
+
+    function closeMemberManageModal() {
+        document.getElementById('memberManageModal').style.display = 'none';
+        currentClubId = null;
+    }
+
+    // 关闭编辑社团模态框
+    function closeEditClubModal() {
+        document.getElementById('editClubModal').style.display = 'none';
+        currentClubId = null;
+    }
+
+    // 编辑社团
+    async function editClub(clubId) {
+        currentClubId = clubId;
+        try {
+            // 获取社团信息
+            const response = await fetch(`/api/clubs/${clubId}`);
+            const result = await response.json();
+
+            if (result.success) {
+                const club = result.data;
+                // 填充表单
+                document.getElementById('editClubName').value = club.clubName;
+                document.getElementById('editClubType').value = club.clubType;
+                document.getElementById('editContactInfo').value = club.contactInfo || '';
+                document.getElementById('editIntroduction').value = club.introduction || '';
+                
+                // 显示模态框
+                document.getElementById('editClubModal').style.display = 'flex';
+                
+                // 为表单添加提交事件
+                document.getElementById('editClubForm').onsubmit = async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        clubName: document.getElementById('editClubName').value.trim(),
+                        clubType: document.getElementById('editClubType').value.trim(),
+                        contactInfo: document.getElementById('editContactInfo').value.trim(),
+                        introduction: document.getElementById('editIntroduction').value.trim()
+                    };
+                    
+                    try {
+                        const updateResponse = await fetch(`/api/clubs/${clubId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-User-Id': currentUser.studentId
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        const updateResult = await updateResponse.json();
+                        
+                        if (updateResult.success) {
+                            alert('🎉 社团信息更新成功！');
+                            closeEditClubModal();
+                            loadMyClubs(); // 刷新社团列表
+                        } else {
+                            alert('❌ 更新失败: ' + updateResult.message);
+                        }
+                    } catch (error) {
+                        console.error('更新社团信息错误:', error);
+                        alert('❌ 更新社团信息时发生错误');
+                    }
+                };
+            } else {
+                alert('获取社团信息失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('获取社团信息错误:', error);
+            alert('获取社团信息时发生错误');
+        }
+    }
+
+    // 工具函数：格式化日期时间
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '未知时间';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+</script>
+
+<!-- 编辑社团模态框 -->
+<div id="editClubModal" class="modal" style="
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+">
+    <div class="modal-content" style="
+        background-color: white;
+        margin: auto;
+        padding: 30px;
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+    ">
+        <span class="close" onclick="closeEditClubModal()" style="
+            color: var(--text-light);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        ">&times;</span>
+        <div id="editClubContent">
+            <h3><i class="fas fa-edit"></i> 编辑社团信息</h3>
+            <form id="editClubForm" style="margin-top: 20px;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="editClubName" style="display: block; margin-bottom: 8px; font-weight: 600;">社团名称</label>
+                    <input type="text" id="editClubName" name="clubName" required style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        font-size: 14px;
+                        transition: var(--transition);
+                    ">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="editClubType" style="display: block; margin-bottom: 8px; font-weight: 600;">社团类型</label>
+                    <input type="text" id="editClubType" name="clubType" required style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        font-size: 14px;
+                        transition: var(--transition);
+                    ">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="editContactInfo" style="display: block; margin-bottom: 8px; font-weight: 600;">联系方式</label>
+                    <input type="text" id="editContactInfo" name="contactInfo" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        font-size: 14px;
+                        transition: var(--transition);
+                    ">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="editIntroduction" style="display: block; margin-bottom: 8px; font-weight: 600;">社团介绍</label>
+                    <textarea id="editIntroduction" name="introduction" rows="4" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        font-size: 14px;
+                        resize: vertical;
+                        transition: var(--transition);
+                    "></textarea>
+                </div>
+                <div class="form-actions" style="margin-top: 30px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditClubModal()" style="margin-right: 10px;">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/leaveClub.js"></script>
+
+<script>
+    // 格式化日期时间
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    // 导出社团信息为PDF
+    async function exportClubToPDF(clubId) {
+        try {
+            // 显示加载提示
+            const loadingToast = document.createElement('div');
+            loadingToast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #667eea;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                z-index: 9999;
+                font-size: 14px;
+            `;
+            loadingToast.textContent = '正在生成PDF...';
+            document.body.appendChild(loadingToast);
+
+            // 获取社团详细信息
+            const response = await fetch(`/api/clubs/${clubId}/detail`);
+            const result = await response.json();
+
+            if (result.success) {
+                const club = result.data;
+                
+                // 创建一个隐藏的HTML元素来渲染社团详情
+                const pdfContent = document.createElement('div');
+                pdfContent.style.cssText = `
+                    position: absolute;
+                    top: -10000px;
+                    left: -10000px;
+                    width: 800px;
+                    padding: 20px;
+                    background: white;
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                `;
+                
+                // 构建HTML内容
+                let htmlContent = `
+                    <div style="text-align: center; background: #667eea; color: white; padding: 20px; margin-bottom: 30px;">
+                        <h1 style="margin: 0; font-size: 24px;">社团详细信息</h1>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px;">基本信息</h2>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 150px; font-weight: bold;">社团名称：</td>
+                                <td>${club.clubName || '未设置'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">社团类型：</td>
+                                <td>${club.clubType || '未设置'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">成员数量：</td>
+                                <td>${club.memberCount || 0} 人</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">创建时间：</td>
+                                <td>${formatDateTime(club.createdAt)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">联系方式：</td>
+                                <td>${club.contactInfo || '暂无'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px;">社长信息</h2>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 150px; font-weight: bold;">学号：</td>
+                                <td>${club.presidentDetail?.studentId || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">姓名：</td>
+                                <td>${club.presidentDetail?.studentName || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">学院：</td>
+                                <td>${club.presidentDetail?.college || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">专业班级：</td>
+                                <td>${club.presidentDetail?.majorClass || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">联系电话：</td>
+                                <td>${club.presidentDetail?.phone || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">邮箱：</td>
+                                <td>${club.presidentDetail?.email || '暂无'}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">加入时间：</td>
+                                <td>${club.presidentDetail?.joinDate ? formatDateTime(club.presidentDetail.joinDate) : '暂无'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px;">成员列表</h2>
+                `;
+                
+                // 添加成员列表
+                if (club.members && club.members.length > 0) {
+                    htmlContent += `
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                            <thead>
+                                <tr style="background: #f5f5f5;">
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 50px;">序号</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 100px;">姓名</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 120px;">学号</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 120px;">学院</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 120px;">专业班级</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 120px;">电话</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">加入时间</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; width: 80px;">角色</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    club.members.forEach((member, index) => {
+                        const roleText = member.role === 'president' ? '社长' : member.role === 'manager' ? '管理员' : '成员';
+                        htmlContent += `
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${index + 1}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${member.name}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${member.studentId}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${member.college || '暂无'}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${member.majorClass || '暂无'}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${member.phone || '暂无'}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${formatDateTime(member.joinDate)}</td>
+                                <td style="border: 1px solid #ddd; padding: 6px; font-size: 12px;">${roleText}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    htmlContent += `
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    htmlContent += `
+                        <p style="font-size: 14px; color: #666;">暂无成员信息</p>
+                    `;
+                }
+                
+                // 添加社团介绍
+                htmlContent += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px;">社团介绍</h2>
+                        <div style="white-space: pre-wrap;">
+                            <p style="font-size: 14px; line-height: 1.6;">${club.introduction || '暂无详细介绍'}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 50px; text-align: center; color: #999; font-size: 10px;">
+                        社团管理系统 - 社团详情报告
+                    </div>
+                `;
+                
+                pdfContent.innerHTML = htmlContent;
+                document.body.appendChild(pdfContent);
+                
+                // 使用html2canvas将HTML转换为canvas
+                const canvas = await html2canvas(pdfContent, {
+                    scale: 2, // 提高清晰度
+                    useCORS: true
+                });
+                
+                // 从canvas创建PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // 计算canvas在PDF中的尺寸
+                const imgWidth = 210; // A4宽度（mm）
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // 将canvas添加到PDF
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // 保存PDF
+                pdf.save(`${club.clubName}_详细信息.pdf`);
+                
+                // 清理临时元素
+                document.body.removeChild(pdfContent);
+                document.body.removeChild(loadingToast);
+                
+                alert('PDF生成成功！');
+            } else {
+                alert('获取社团信息失败: ' + result.message);
+                // 清理加载提示
+                const loadingToast = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                if (loadingToast) {
+                    document.body.removeChild(loadingToast);
+                }
+            }
+        } catch (error) {
+            console.error('导出PDF错误:', error);
+            alert('生成PDF时发生错误，请稍后重试');
+            // 清理加载提示
+            const loadingToast = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+            if (loadingToast) {
+                document.body.removeChild(loadingToast);
+            }
+        }
+    }
+</script>
+</body>
+</html>

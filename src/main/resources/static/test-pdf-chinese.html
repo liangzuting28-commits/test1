@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试PDF中文显示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <h1>测试PDF中文显示</h1>
+    <button onclick="testPDF()">生成测试PDF</button>
+    
+    <script>
+        function testPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // 设置文档属性
+            doc.setProperties({
+                title: '中文测试PDF',
+                creator: '测试系统'
+            });
+            
+            // 设置字体
+            doc.setFont('helvetica', 'normal');
+            
+            // 重写text函数以确保中文支持
+            const originalText = doc.text;
+            doc.text = function(text, x, y, options) {
+                if (typeof text === 'string' && text.match(/[\u4e00-\u9fa5]/)) {
+                    options = options || {};
+                    options.encoding = 'Unicode';
+                }
+                return originalText.call(this, text, x, y, options);
+            };
+            
+            // 测试中文文本
+            doc.setFontSize(20);
+            doc.text('测试中文PDF显示', 10, 20);
+            
+            doc.setFontSize(12);
+            doc.text('社团名称: 计算机科学与技术协会', 10, 35);
+            doc.text('社团类型: 学术科技', 10, 45);
+            doc.text('成员数量: 120 人', 10, 55);
+            doc.text('创建时间: 2023年9月1日', 10, 65);
+            
+            // 测试表格
+            doc.autoTable({
+                head: [['序号', '姓名', '学号', '学院']],
+                body: [
+                    [1, '张三', '20210001', '计算机学院'],
+                    [2, '李四', '20210002', '电子工程学院'],
+                    [3, '王五', '20210003', '数学学院']
+                ],
+                startY: 80,
+                styles: {
+                    fontSize: 10,
+                    font: 'helvetica'
+                }
+            });
+            
+            doc.save('中文测试.pdf');
+        }
+    </script>
+</body>
+</html>

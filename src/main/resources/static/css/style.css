@@ -1,0 +1,235 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-container {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+.role-selector {
+    display: flex;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.role-option {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.role-option.active {
+    background: #667eea;
+    color: white;
+}
+
+.role-option:not(.active):hover {
+    background: #e9ecef;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 40px;
+    cursor: pointer;
+    color: #999;
+    user-select: none;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.login-btn:hover {
+    background: #5a6fd8;
+}
+
+.login-btn:active {
+    transform: translateY(1px);
+}
+
+.role-description {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+    border-left: 4px solid #667eea;
+}
+
+.role-description strong {
+    color: #333;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 13px;
+    color: #999;
+}
+
+.system-info {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.system-info .logo {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.system-info h2 {
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.system-info p {
+    color: #666;
+    font-size: 14px;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 5px;
+    display: none;
+}
+
+.test-accounts {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff3cd;
+    border-radius: 5px;
+    color: #856404;
+    font-size: 12px;
+}
+
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.error-message-global {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+/* 确保错误消息默认隐藏 */
+.error-message {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 30px 20px;
+    }
+
+    .role-selector {
+        flex-direction: column;
+    }
+
+    .role-option {
+        padding: 10px;
+    }
+}

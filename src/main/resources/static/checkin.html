@@ -1,0 +1,847 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动签到 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 自定义变量 */
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-color: #48bb78;
+            --success-dark: #38a169;
+            --danger-color: #f56565;
+            --danger-dark: #e53e3e;
+            --warning-color: #ed8936;
+            --warning-dark: #dd6b20;
+            --background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background-gradient);
+            color: #333;
+            padding-bottom: 60px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            padding: 6px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: calc(var(--border-radius) - 3px);
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            color: white;
+        }
+
+        .tab.active::before {
+            opacity: 1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-dark) 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-dark) 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 101, 101, 0.4);
+        }
+
+        #video-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            background: #000;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-region {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            border: 2px solid rgba(102, 126, 234, 0.9);
+            border-radius: 16px;
+            background: radial-gradient(circle, transparent 70%, rgba(102, 126, 234, 0.1) 100%);
+        }
+
+        .scan-region::before,
+        .scan-region::after,
+        .scan-region::nth-child(2),
+        .scan-region::nth-child(3) {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
+        }
+
+        .scan-region::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scan-region::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scan-region::nth-child(2) {
+            top: -3px;
+            right: -3px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .scan-region::nth-child(3) {
+            bottom: -3px;
+            left: -3px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.8);
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0;
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                top: 100%;
+                opacity: 0.3;
+            }
+        }
+
+        .activity-info {
+            background: rgba(248, 249, 250, 0.95);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .activity-details {
+            display: grid;
+            gap: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            font-size: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item i {
+            color: var(--primary-color);
+            width: 20px;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(72, 187, 120, 0.05) 100%);
+            color: var(--success-dark);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid var(--success-color);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.15);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .success-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--success-color);
+            filter: drop-shadow(0 4px 8px rgba(72, 187, 120, 0.3));
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, rgba(245, 101, 101, 0.1) 0%, rgba(245, 101, 101, 0.05) 100%);
+            color: var(--danger-dark);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            text-align: center;
+            border: 2px solid var(--danger-color);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.15);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .error-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--danger-color);
+            filter: drop-shadow(0 4px 8px rgba(245, 101, 101, 0.3));
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            #video-container {
+                height: 280px;
+            }
+
+            .scan-region {
+                width: 200px;
+                height: 200px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            .activity-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-qrcode"></i> 活动签到</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+            <i class="fas fa-arrow-left"></i> 返回
+        </button>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('scan')">
+            <i class="fas fa-camera"></i> 扫码签到
+        </div>
+        <div class="tab" onclick="switchTab('manual')">
+            <i class="fas fa-keyboard"></i> 输入签到数
+        </div>
+    </div>
+
+    <!-- 扫码签到标签页 -->
+    <div id="scan-tab" class="tab-content active">
+        <div class="card">
+            <div id="video-container">
+                <video id="video"></video>
+                <div class="scan-region">
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            <button id="startScan" class="btn btn-primary">
+                <i class="fas fa-camera"></i> 开始扫描
+            </button>
+            <button id="stopScan" class="btn" style="display: none; background: #f44336; color: white; margin-top: 10px;">
+                <i class="fas fa-stop"></i> 停止扫描
+            </button>
+        </div>
+
+        <div id="scan-result" style="display: none;">
+            <!-- 扫描结果将显示在这里 -->
+        </div>
+    </div>
+
+    <!-- 输入签到数标签页 -->
+    <div id="manual-tab" class="tab-content">
+        <div class="card">
+            <div class="form-group">
+                <label for="checkInNumber">签到数</label>
+                <input type="text" id="checkInNumber" placeholder="请输入6位签到数" maxlength="6">
+            </div>
+            <button id="submitCheckIn" class="btn btn-success">
+                <i class="fas fa-check"></i> 提交签到
+            </button>
+        </div>
+
+        <div id="manual-result" style="display: none;">
+            <!-- 手动签到结果将显示在这里 -->
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script>
+    let currentUser = null;
+    let codeReader = null;
+    let currentStream = null;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        initQRScanner();
+        initManualCheckIn();
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 切换标签页
+    function switchTab(tab) {
+        // 停止扫描
+        if (tab !== 'scan' && currentStream) {
+            stopScanning();
+        }
+
+        // 切换标签
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        if (tab === 'scan') {
+            document.querySelector('.tab:first-child').classList.add('active');
+            document.getElementById('scan-tab').classList.add('active');
+        } else {
+            document.querySelector('.tab:last-child').classList.add('active');
+            document.getElementById('manual-tab').classList.add('active');
+        }
+    }
+
+    // 初始化二维码扫描器
+    function initQRScanner() {
+        codeReader = new ZXing.BrowserMultiFormatReader();
+
+        document.getElementById('startScan').addEventListener('click', startScanning);
+        document.getElementById('stopScan').addEventListener('click', stopScanning);
+    }
+
+    // 开始扫描
+    async function startScanning() {
+        try {
+            document.getElementById('startScan').style.display = 'none';
+            document.getElementById('stopScan').style.display = 'block';
+
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = currentStream;
+            videoElement.play();
+
+            codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
+                if (result) {
+                    console.log('扫描结果:', result.text);
+                    handleScanResult(result.text);
+                    stopScanning();
+                }
+            });
+        } catch (error) {
+            console.error('扫描错误:', error);
+            alert('无法访问摄像头，请检查权限设置');
+            document.getElementById('startScan').style.display = 'block';
+            document.getElementById('stopScan').style.display = 'none';
+        }
+    }
+
+    // 停止扫描
+    function stopScanning() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+
+        if (codeReader) {
+            codeReader.reset();
+        }
+
+        document.getElementById('startScan').style.display = 'block';
+        document.getElementById('stopScan').style.display = 'none';
+    }
+
+    // 处理扫描结果
+    async function handleScanResult(scanText) {
+        try {
+            // 解析扫描结果
+            // 格式: CLUB_ACTIVITY_CHECKIN:activityId:checkInNumber:timestamp
+            const parts = scanText.split(':');
+            if (parts.length < 4 || parts[0] !== 'CLUB_ACTIVITY_CHECKIN') {
+                showError('scan-result', '无效的二维码');
+                return;
+            }
+
+            const activityId = parts[1];
+            const checkInNumber = parts[2];
+
+            // 显示活动信息
+            await showActivityInfo('scan-result', activityId, checkInNumber);
+
+            // 执行签到
+            await performCheckIn('scan-result', activityId, checkInNumber);
+
+        } catch (error) {
+            console.error('处理扫描结果错误:', error);
+            showError('scan-result', '处理扫描结果时发生错误');
+        }
+    }
+
+    // 初始化手动签到
+    function initManualCheckIn() {
+        document.getElementById('submitCheckIn').addEventListener('click', async function() {
+            const checkInNumber = document.getElementById('checkInNumber').value.trim();
+
+            if (!checkInNumber) {
+                showError('manual-result', '请输入签到数');
+                return;
+            }
+
+            if (checkInNumber.length !== 6) {
+                showError('manual-result', '签到数必须是6位数字');
+                return;
+            }
+
+            try {
+                // 根据签到数获取活动信息
+                const activity = await getActivityByCheckInNumber(checkInNumber);
+
+                if (!activity) {
+                    showError('manual-result', '找不到对应的活动，请检查签到数是否正确');
+                    return;
+                }
+
+                // 显示活动信息
+                await showActivityInfo('manual-result', activity.activityId, checkInNumber);
+
+                // 执行签到
+                await performCheckIn('manual-result', activity.activityId, checkInNumber);
+
+            } catch (error) {
+                console.error('手动签到错误:', error);
+                showError('manual-result', '签到时发生错误');
+            }
+        });
+    }
+
+    // 根据签到数获取活动信息
+    async function getActivityByCheckInNumber(checkInNumber) {
+        try {
+            const response = await fetch(`/api/checkin/activity/by-number/${checkInNumber}`);
+            const result = await response.json();
+
+            if (result.success) {
+                return result.data;
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('获取活动信息错误:', error);
+            return null;
+        }
+    }
+
+    // 显示活动信息
+    async function showActivityInfo(containerId, activityId, checkInNumber) {
+        try {
+            const response = await fetch(`/api/checkin/activity/${activityId}/status`);
+            const result = await response.json();
+
+            if (result.success) {
+                const activity = result.data;
+                const container = document.getElementById(containerId);
+
+                container.innerHTML = `
+                    <div class="activity-info">
+                        <div class="activity-title">${activity.activityName}</div>
+                        <div class="activity-details">
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>时间: ${formatDateTime(activity.activityTime)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>地点: ${activity.location}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-star"></i>
+                                <span>积分: ${activity.awardPoints}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-hashtag"></i>
+                                <span>签到数: ${checkInNumber}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.style.display = 'block';
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('显示活动信息错误:', error);
+            throw error;
+        }
+    }
+
+    // 执行签到
+    async function performCheckIn(containerId, activityId, checkInNumber) {
+        try {
+            const response = await fetch('/api/checkin/manual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify({
+                    code: checkInNumber,
+                    activityId: activityId.toString()
+                })
+            });
+
+            const result = await response.json();
+            const container = document.getElementById(containerId);
+
+            if (result.success) {
+                const data = result.data;
+                container.innerHTML += `
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i> ${data.message}
+                        <div>活动: ${data.activityName}</div>
+                        <div>签到时间: ${formatDateTime(data.checkInTime)}</div>
+                    </div>
+                `;
+
+                // 注意：积分将在活动结束后由社长统一发放，而不是签到时立即发放
+                console.log("签到成功，积分将在活动结束后发放");
+            } else {
+                // 显示更详细的错误信息
+                let errorMessage = result.message;
+                if (result.message && result.message.includes("您未报名该活动")) {
+                    errorMessage = "您未报名该活动，请先报名后再签到";
+                } else if (result.message && result.message.includes("您已经签到过了")) {
+                    errorMessage = "您已经签到过了，无需重复签到";
+                } else if (result.message && result.message.includes("活动尚未开始或已结束")) {
+                    errorMessage = "活动尚未开始或已结束，无法签到";
+                } else if (result.message && result.message.includes("活动码或签到数不正确")) {
+                    errorMessage = "签到数不正确，请检查后重试";
+                } else if (result.message && result.message.includes("系统繁忙")) {
+                    errorMessage = "系统繁忙，请稍后再试";
+                }
+
+                container.innerHTML += `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> ${errorMessage}
+                    </div>
+                `;
+            }
+
+            container.style.display = 'block';
+        } catch (error) {
+            console.error('执行签到错误:', error);
+            showError(containerId, '签到时发生错误');
+        }
+    }
+
+    // 更新积分信息
+    async function updatePointsInfo() {
+        try {
+            // 获取最新的总积分
+            const totalResponse = await fetch(`/api/points/student/${currentUser.studentId}/total`);
+            const totalResult = await totalResponse.json();
+
+            if (totalResult.success) {
+                // 更新本地存储中的积分信息
+                const updatedUser = { ...currentUser, totalPoints: totalResult.data };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                currentUser = updatedUser;
+
+                console.log('积分信息已更新:', totalResult.data);
+            }
+        } catch (error) {
+            console.error('更新积分信息错误:', error);
+        }
+    }
+
+    // 显示错误信息
+    function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i> ${message}
+            </div>
+        `;
+        container.style.display = 'block';
+    }
+
+    // 工具函数
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN');
+    }
+</script>
+</body>
+</html>

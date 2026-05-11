@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成员管理 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: #667eea;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h3 i {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-danger:hover::before {
+            left: 100%;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section h4 i {
+            color: #667eea;
+        }
+
+        .members-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .member-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .member-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .member-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-header h3 {
+            color: #333;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h3 i {
+            color: #667eea;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f8f9fa;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            resize: vertical;
+            line-height: 1.5;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .member-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .member-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-users-cog"></i> 成员管理</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+            <i class="fas fa-arrow-left"></i> 返回仪表盘
+        </button>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-users-cog"></i> 社团成员管理</h3>
+        <div class="form-group">
+            <label for="clubSelect">选择要管理的社团</label>
+            <select id="clubSelect" onchange="loadClubMembers(this.value)">
+                <option value="">请选择社团</option>
+            </select>
+        </div>
+        <div id="membersContainer">
+            <!-- 成员列表将通过JavaScript动态生成 -->
+        </div>
+    </div>
+</div>
+
+<!-- 删除成员模态框 -->
+<div id="removeMemberModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-times"></i> 删除成员</h3>
+            <button class="modal-close" onclick="closeRemoveMemberModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="removalReason">删除原因</label>
+                <textarea id="removalReason" placeholder="请输入删除原因..." rows="4"></textarea>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-danger" onclick="confirmRemoveMember()">
+                    <i class="fas fa-trash"></i> 确认删除
+                </button>
+                <button class="btn btn-primary" onclick="closeRemoveMemberModal()">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let currentClubId = null;
+    let currentMemberId = null;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        loadManagedClubs();
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 加载管理的社团列表
+    async function loadManagedClubs() {
+        try {
+            const response = await fetch('/api/clubs/my-clubs', {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+            const clubSelect = document.getElementById('clubSelect');
+
+            if (result.success && result.data && result.data.length > 0) {
+                clubSelect.innerHTML = '<option value="">请选择社团</option>' + 
+                    result.data.map(club => `<option value="${club.clubId}">${club.clubName}</option>`).join('');
+            } else {
+                clubSelect.innerHTML = '<option value="">暂无管理的社团</option>';
+            }
+        } catch (error) {
+            console.error('加载社团列表错误:', error);
+            document.getElementById('clubSelect').innerHTML = '<option value="">加载失败，请刷新重试</option>';
+        }
+    }
+
+    // 加载社团成员
+    async function loadClubMembers(clubId) {
+        const container = document.getElementById('membersContainer');
+
+        if (!clubId) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-info-circle"></i><p>请选择一个社团</p></div>';
+            return;
+        }
+
+        currentClubId = clubId;
+
+        // 显示加载状态
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>';
+
+        try {
+            // 1. 加载待审核申请
+            const pendingResponse = await fetch(`/api/clubs/${clubId}/pending-applications`, {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            const pendingResult = await pendingResponse.json();
+
+            // 2. 加载已通过成员
+            const approvedResponse = await fetch(`/api/club-memberships/club/${clubId}/members-detail`, {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            const approvedResult = await approvedResponse.json();
+
+            // 渲染内容
+            let html = '';
+
+            // 渲染待审核申请
+            if (pendingResult.success && pendingResult.data && pendingResult.data.length > 0) {
+                html += `
+                    <div class="section">
+                        <h4><i class="fas fa-clock"></i> 待审核申请</h4>
+                        <div class="members-list">
+                            ${pendingResult.data.map(app => `
+                                <div class="member-item application-item">
+                                    <div class="member-info">
+                                        <h4>${getStudentName(app.studentId)}</h4>
+                                        <div class="member-details">
+                                            学号：${app.studentId} | 申请时间：${formatDateTime(app.joinDate)}
+                                        </div>
+                                    </div>
+                                    <div class="member-actions">
+                                        <button class="btn btn-success btn-sm" onclick="window.location.href='/member-manage.html'">
+                                            <i class="fas fa-user-check"></i> 审核申请
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 渲染已通过成员
+            if (approvedResult.success && approvedResult.data && approvedResult.data.length > 0) {
+                html += `
+                    <div class="section">
+                        <h4><i class="fas fa-check-circle"></i> 已通过成员</h4>
+                        <div class="members-list">
+                            ${approvedResult.data.map(student => `
+                                <div class="member-item">
+                                    <div class="member-info">
+                                        <h4>${student.name}</h4>
+                                        <div class="member-details">
+                                            学号：${student.studentId} | 学院：${student.college} | 班级：${student.majorClass}
+                                        </div>
+                                    </div>
+                                    <div class="member-actions">
+                                        <button class="btn btn-danger btn-sm" onclick="showRemoveMemberModal('${student.studentId}', '${student.name}')">
+                                            <i class="fas fa-user-times"></i> 删除
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (!html) {
+                html = '<div class="empty-state"><i class="fas fa-users-slash"></i><p>暂无成员</p></div>';
+            }
+
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('加载成员列表错误:', error);
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>加载失败</p></div>';
+        }
+    }
+
+    // 显示删除成员模态框
+    function showRemoveMemberModal(studentId, studentName) {
+        currentMemberId = studentId;
+        document.getElementById('removalReason').value = '';
+        document.getElementById('removeMemberModal').style.display = 'flex';
+    }
+
+    // 关闭删除成员模态框
+    function closeRemoveMemberModal() {
+        document.getElementById('removeMemberModal').style.display = 'none';
+        currentMemberId = null;
+    }
+
+    // 确认删除成员
+    async function confirmRemoveMember() {
+        if (!currentMemberId || !currentClubId) {
+            return;
+        }
+
+        const removalReason = document.getElementById('removalReason').value.trim();
+
+        if (!removalReason) {
+            alert('请输入删除原因');
+            return;
+        }
+
+        if (!confirm(`确定要删除该成员吗？此操作不可撤销。`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/member-manage/club/${currentClubId}/member/${currentMemberId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': currentUser.studentId
+                },
+                body: JSON.stringify({
+                    reason: removalReason
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                closeRemoveMemberModal();
+                alert('成员删除成功！');
+                loadClubMembers(currentClubId);
+            } else {
+                alert(`删除失败：${result.message}`);
+            }
+        } catch (error) {
+            console.error('删除成员失败:', error);
+            alert('删除过程中发生错误，请重试');
+        }
+    }
+
+    // 工具函数：格式化日期时间
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '未知时间';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // 工具函数：获取学生姓名
+    function getStudentName(studentId) {
+        // 简化逻辑：实际应从学生列表接口获取，此处仅为示例
+        const studentMap = {
+            '2021001001': '张三',
+            '2021001002': '李四',
+            '2021002002': '周八'
+        };
+        return studentMap[studentId] || `未知用户(${studentId})`;
+    }
+</script>
+</body>
+</html>

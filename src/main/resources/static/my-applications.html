@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的申请 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .applications-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .application-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .application-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .application-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #667eea;
+        }
+
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .application-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .application-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .application-info {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-item i {
+            color: #667eea;
+            width: 16px;
+            text-align: center;
+        }
+
+        .application-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-user-plus"></i> 我的社团申请</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+            <i class="fas fa-arrow-left"></i> 返回仪表盘
+        </button>
+    </div>
+
+    <div id="applicationsContainer" class="applications-grid">
+        <!-- 申请列表将通过JavaScript动态生成 -->
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        loadApplications();
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 加载申请列表
+    async function loadApplications() {
+        try {
+            const response = await fetch('/api/clubs/my-applications', {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+            const container = document.getElementById('applicationsContainer');
+
+            if (result.success && result.data && result.data.length > 0) {
+                container.innerHTML = result.data.map(app => {
+                    const statusClass = app.applicationStatus === 'PENDING' ? 'status-pending' :
+                                      app.applicationStatus === 'APPROVED' ? 'status-approved' : 'status-rejected';
+                    const statusText = app.applicationStatus === 'PENDING' ? '待审核' :
+                                     app.applicationStatus === 'APPROVED' ? '已通过' : '已拒绝';
+
+                    return `
+                            <div class="application-card">
+                                <div class="application-header">
+                                    <div class="application-title">申请加入社团</div>
+                                    <div class="application-status ${statusClass}">${statusText}</div>
+                                </div>
+                                <div class="application-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>社团ID: ${app.clubId}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>申请时间: ${formatDateTime(app.joinDate)}</span>
+                                    </div>
+                                </div>
+                                ${app.applicationStatus === 'REJECTED' ? `
+                                <div class="application-description">
+                                    <strong>拒绝原因:</strong> ${app.reason || '未说明原因'}
+                                </div>
+                                ` : ''}
+                                ${app.applicationStatus === 'PENDING' ? `
+                                <div class="application-actions">
+                                    <button class="btn btn-primary" onclick="deleteApplication('${app.membershipId || app.id}')">
+                                        <i class="fas fa-trash"></i> 删除申请
+                                    </button>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                }).join('');
+            } else {
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无申请记录</p>
+                            <p>去<a href="/club-manage.html">社团中心</a>申请加入感兴趣的社团吧！</p>
+                        </div>
+                    `;
+            }
+        } catch (error) {
+            console.error('加载申请列表错误:', error);
+            document.getElementById('applicationsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>加载失败</p>
+                        <p>请刷新页面重试</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 工具函数：格式化日期时间
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '未知时间';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // 删除申请记录
+    function deleteApplication(membershipId) {
+        if (confirm('确定要删除这条申请记录吗？')) {
+            fetch(`/api/clubs/my-applications/${membershipId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-User-Id': localStorage.getItem('userId')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('申请记录删除成功');
+                    loadApplications(); // 重新加载申请列表
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('删除申请失败:', error);
+                alert('删除失败，请稍后重试');
+            });
+        }
+    }
+</script>
+</body>
+</html>

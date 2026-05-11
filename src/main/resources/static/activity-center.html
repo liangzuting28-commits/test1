@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动中心 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 自定义变量 */
+        :root {
+            --primary-color: #667eea;
+            --primary-hover: #5a6fd8;
+            --secondary-color: #f093fb;
+            --success-color: #4caf50;
+            --success-hover: #43a047;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-light: #999;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --bg-light: #fafbfc;
+            --border-color: #e1e8ed;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius-sm: 6px;
+            --border-radius-md: 10px;
+            --border-radius-lg: 16px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 页面标题区域 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--bg-primary);
+            padding: 24px 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            font-size: 32px;
+        }
+
+        /* 搜索和筛选区域 */
+        .search-filter-section {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-box {
+            width: 100%;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 18px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 18px 16px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition);
+            background: var(--bg-light);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-options select {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+        }
+
+        .filter-options select:focus {
+            border-color: var(--primary-color);
+            background-color: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 活动网格布局 */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        /* 活动卡片 */
+        .activity-card {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border-left: 5px solid var(--primary-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .activity-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .activity-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .activity-club {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .activity-club i {
+            color: var(--primary-color);
+        }
+
+        .activity-type {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: auto;
+        }
+
+        /* 活动信息 */
+        .activity-info {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: var(--border-radius-md);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .info-item i {
+            color: var(--primary-color);
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 活动描述 */
+        .activity-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 14px;
+            padding: 16px;
+            background: rgba(245, 247, 250, 0.6);
+            border-radius: var(--border-radius-md);
+            border-left: 3px solid var(--primary-color);
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        /* 活动操作按钮 */
+        .activity-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--success-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 已报名标签 */
+        .registered-badge {
+            background: linear-gradient(135deg, var(--success-color), #81c784);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .activity-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .filter-options {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .filter-options select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .activity-actions {
+                flex-direction: column;
+            }
+
+            .empty-state {
+                padding: 40px 20px;
+            }
+
+            .empty-state i {
+                font-size: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px 0;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .search-filter-section {
+                padding: 20px;
+            }
+
+            .activity-card {
+                padding: 20px;
+            }
+        }
+
+        /* 活动卡片悬停效果增强 */
+        .activity-card:hover .activity-title {
+            color: var(--primary-color);
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-calendar-alt"></i> 活动中心</h1>
+        <div>
+            <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+                <i class="fas fa-arrow-left"></i> 返回仪表盘
+            </button>
+        </div>
+    </div>
+
+    <!-- 搜索和筛选区域 -->
+    <div class="search-filter-section">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索活动名称、描述或社团..." onkeyup="applyFilters()">
+        </div>
+        <div class="filter-options">
+            <select id="typeFilter" onchange="applyFilters()">
+                <option value="all">所有类型</option>
+                <option value="学术讲座">学术讲座</option>
+                <option value="文体活动">文体活动</option>
+                <option value="志愿公益">志愿公益</option>
+                <option value="竞赛获奖">竞赛获奖</option>
+                <option value="社会实践">社会实践</option>
+            </select>
+            <select id="pointsFilter" onchange="applyFilters()">
+                <option value="all">所有积分</option>
+                <option value="0-10">0-10分</option>
+                <option value="11-20">11-20分</option>
+                <option value="21-30">21-30分</option>
+                <option value="30+">30分以上</option>
+            </select>
+            <select id="sortBy" onchange="applyFilters()">
+                <option value="time">按时间排序</option>
+                <option value="points">按积分排序</option>
+                <option value="name">按名称排序</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="activitiesContainer" class="activity-grid">
+        <!-- 活动列表将通过JavaScript动态生成 -->
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let allActivities = [];
+    let registeredActivities = new Set();
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        loadActivities();
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 加载所有活动
+    async function loadActivities() {
+        try {
+            const response = await fetch('/api/activities');
+            const result = await response.json();
+
+            if (result.success) {
+                allActivities = result.data;
+                displayActivities(allActivities);
+            } else {
+                console.error('加载活动失败:', result.message);
+            }
+        } catch (error) {
+            console.error('加载活动错误:', error);
+        }
+    }
+
+    // 应用搜索和筛选
+    function applyFilters() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('typeFilter').value;
+        const pointsFilter = document.getElementById('pointsFilter').value;
+        const sortBy = document.getElementById('sortBy').value;
+
+        // 筛选活动
+        let filteredActivities = allActivities.filter(activity => {
+            // 确保只显示已发布的活动
+            if (activity.status !== 'PUBLISHED') return false;
+
+            // 搜索筛选
+            const matchesSearch = searchText === '' || 
+                activity.activityName.toLowerCase().includes(searchText) ||
+                (activity.description && activity.description.toLowerCase().includes(searchText)) ||
+                (activity.clubId && activity.clubId.toString().toLowerCase().includes(searchText));
+
+            // 类型筛选
+            const matchesType = typeFilter === 'all' || activity.activityType === typeFilter;
+
+            // 积分筛选
+            let matchesPoints = true;
+            if (pointsFilter !== 'all') {
+                const points = activity.awardPoints;
+                switch(pointsFilter) {
+                    case '0-10':
+                        matchesPoints = points >= 0 && points <= 10;
+                        break;
+                    case '11-20':
+                        matchesPoints = points >= 11 && points <= 20;
+                        break;
+                    case '21-30':
+                        matchesPoints = points >= 21 && points <= 30;
+                        break;
+                    case '30+':
+                        matchesPoints = points > 30;
+                        break;
+                }
+            }
+
+            return matchesSearch && matchesType && matchesPoints;
+        });
+
+        // 排序活动
+        filteredActivities.sort((a, b) => {
+            switch(sortBy) {
+                case 'time':
+                    return new Date(a.activityTime) - new Date(b.activityTime);
+                case 'points':
+                    return b.awardPoints - a.awardPoints;
+                case 'name':
+                    return a.activityName.localeCompare(b.activityName);
+                default:
+                    return 0;
+            }
+        });
+
+        // 显示筛选后的活动
+        displayActivities(filteredActivities);
+    }
+
+    // 显示活动列表
+    function displayActivities(activities) {
+        const container = document.getElementById('activitiesContainer');
+
+        if (activities.length > 0) {
+            container.innerHTML = activities.map(activity => {
+                return `
+                        <div class="activity-card">
+                            <div class="activity-header">
+                                <div>
+                                    <div class="activity-title">${activity.activityName}</div>
+                                    <div class="activity-club"><i class="fas fa-university"></i> 主办社团: ${activity.clubName}</div>
+                                    ${activity.activityType ? `<div class="activity-type">类型: ${activity.activityType}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="activity-info">
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>时间: ${formatDateTime(activity.activityTime)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>地点: ${activity.location}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>人数限制: ${activity.maxParticipants === 0 ? '无限制' : activity.maxParticipants + '人'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>积分: ${activity.awardPoints}</span>
+                                </div>
+                            </div>
+                            <div class="activity-description">
+                                ${activity.description || '暂无描述'}
+                            </div>
+                            <div class="activity-actions">
+                                <button class="btn btn-success" onclick="registerActivity(${activity.activityId})">
+                                    <i class="fas fa-calendar-check"></i> 报名参加
+                                </button>
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>没有找到符合条件的活动</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 报名活动
+    async function registerActivity(activityId) {
+        try {
+            const response = await fetch(`/api/activities/${activityId}/register`, {
+                method: 'POST',
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('报名成功！');
+                // 重新加载活动列表
+                loadActivities();
+            } else {
+                alert('报名失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('报名活动错误:', error);
+            alert('报名时发生错误');
+        }
+    }
+
+    // 工具函数
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动报名详情 - 社团管理系统</title>
+    <meta name="version" content="1.0.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.primary {
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-card.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-number.primary {
+            color: #667eea;
+        }
+
+        .stat-number.success {
+            color: #28a745;
+        }
+
+        .stat-number.warning {
+            color: #ffc107;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        .filter-select select {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .filter-select select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .participant-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .participant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .participant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #667eea;
+        }
+
+        .participant-card.checked-in::before {
+            background: #28a745;
+        }
+
+        .participant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .participant-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .participant-name i {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .participant-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-checkedin {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-notcheckedin {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .participant-info {
+            display: grid;
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .info-row i {
+            color: #667eea;
+            width: 20px;
+            text-align: center;
+        }
+
+        .info-row.checked-in {
+            color: #28a745;
+        }
+
+        .info-row.not-checked-in {
+            color: #dc3545;
+        }
+
+        .activity-info {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .activity-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-title i {
+            color: #667eea;
+        }
+
+        .activity-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .activity-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-size: 15px;
+        }
+
+        .activity-detail i {
+            color: #667eea;
+            width: 20px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .subtext {
+            font-size: 14px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .participants-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-input, .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1><i class="fas fa-users"></i> 活动报名详情</h1>
+            <button class="btn btn-primary" onclick="window.location.href='activity-manage.html'">
+                <i class="fas fa-arrow-left"></i> 返回活动管理
+            </button>
+        </div>
+
+        <!-- 活动信息 -->
+        <div class="activity-info" id="activityInfo">
+            <div class="activity-title">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="activityName">加载中...</span>
+            </div>
+            <div class="activity-details">
+                <div class="activity-detail">
+                    <i class="fas fa-clock"></i>
+                    <span id="activityTime">加载中...</span>
+                </div>
+                <div class="activity-detail">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="activityLocation">加载中...</span>
+                </div>
+                <div class="activity-detail">
+                    <i class="fas fa-users"></i>
+                    <span id="activityClub">加载中...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats-container">
+            <div class="stat-card primary">
+                <div class="stat-number primary" id="totalParticipants">0</div>
+                <div class="stat-label">总报名人数</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-number success" id="checkedInParticipants">0</div>
+                <div class="stat-label">已签到人数</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-number warning" id="checkInRate">0%</div>
+                <div class="stat-label">签到率</div>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="search-box">
+            <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索学生姓名或学号..." oninput="filterParticipants()">
+            </div>
+            <div class="filter-select">
+                <select id="statusFilter" onchange="filterParticipants()">
+                    <option value="all">全部状态</option>
+                    <option value="checkedin">已签到</option>
+                    <option value="notcheckedin">未签到</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 参与者列表 -->
+        <div class="participants-grid" id="participantsList">
+            <!-- 动态生成参与者列表 -->
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-users-slash"></i>
+            <p>暂无报名学生</p>
+            <p class="subtext">该活动还没有学生报名</p>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let activityId = null;
+        let activityData = null;
+        let participantsData = [];
+
+        // 页面加载初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从URL参数获取活动ID
+            const urlParams = new URLSearchParams(window.location.search);
+            activityId = urlParams.get('activityId');
+
+            if (!activityId) {
+                showError('缺少活动ID参数');
+                return;
+            }
+
+            // 加载活动详情和参与者数据
+            loadActivityDetails();
+            loadParticipants();
+        });
+
+        // 加载活动详情
+        async function loadActivityDetails() {
+            try {
+                const response = await fetch(`/api/activities/${activityId}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    activityData = result.data;
+                    document.getElementById('activityName').textContent = activityData.activityName;
+                    document.getElementById('activityTime').textContent = formatDateTime(activityData.activityTime);
+                    document.getElementById('activityLocation').textContent = activityData.location;
+
+                    // 获取社团名称
+                    try {
+                        const clubResponse = await fetch(`/api/clubs/${activityData.clubId}`);
+                        const clubResult = await clubResponse.json();
+                        if (clubResult.success && clubResult.data) {
+                            document.getElementById('activityClub').textContent = clubResult.data.clubName;
+                        } else {
+                            document.getElementById('activityClub').textContent = `社团 #${activityData.clubId}`;
+                        }
+                    } catch (error) {
+                        console.error('获取社团信息失败:', error);
+                        document.getElementById('activityClub').textContent = `社团 #${activityData.clubId}`;
+                    }
+                } else {
+                    showError('获取活动详情失败');
+                }
+            } catch (error) {
+                console.error('加载活动详情错误:', error);
+                showError('加载活动详情时发生错误');
+            }
+        }
+
+        // 加载参与者数据
+        async function loadParticipants() {
+            try {
+                const response = await fetch(`/api/activities/${activityId}/participants`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    participantsData = result.data;
+                    updateStatistics();
+                    renderParticipants();
+                } else {
+                    showError('获取参与者数据失败');
+                }
+            } catch (error) {
+                console.error('加载参与者错误:', error);
+                showError('加载参与者数据时发生错误');
+            }
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            const totalParticipants = participantsData.length;
+            const checkedInParticipants = participantsData.filter(p => p.checkInStatus).length;
+            const checkInRate = totalParticipants > 0 ? Math.round((checkedInParticipants / totalParticipants) * 100) : 0;
+
+            document.getElementById('totalParticipants').textContent = totalParticipants;
+            document.getElementById('checkedInParticipants').textContent = checkedInParticipants;
+            document.getElementById('checkInRate').textContent = checkInRate + '%';
+        }
+
+        // 渲染参与者列表
+        function renderParticipants() {
+            const participantsList = document.getElementById('participantsList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (participantsData.length === 0) {
+                participantsList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            participantsList.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            participantsList.innerHTML = participantsData.map(participant => `
+                <div class="participant-card ${participant.checkInStatus ? 'checked-in' : ''}">
+                    <div class="participant-header">
+                        <div class="participant-name">
+                            <i class="fas fa-user-circle"></i>
+                            ${participant.name}
+                        </div>
+                        <div class="participant-status ${participant.checkInStatus ? 'status-checkedin' : 'status-notcheckedin'}">
+                            ${participant.checkInStatus ? '<i class="fas fa-check-circle"></i>' : '<i class="far fa-clock"></i>'}
+                            ${participant.checkInStatus ? '已签到' : '未签到'}
+                        </div>
+                    </div>
+                    <div class="participant-info">
+                        <div class="info-row">
+                            <i class="fas fa-id-card"></i>
+                            <span>学号: ${participant.studentId}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>学院: ${participant.college || '未填写'}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-users"></i>
+                            <span>班级: ${participant.majorClass || '未填写'}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>报名时间: ${formatDateTime(participant.registrationTime)}</span>
+                        </div>
+                        ${participant.checkInStatus ? `
+                        <div class="info-row checked-in">
+                            <i class="fas fa-check-circle"></i>
+                            <span>签到时间: ${formatDateTime(participant.checkInTime)}</span>
+                        </div>
+                        ` : `
+                        <div class="info-row not-checked-in">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>尚未签到</span>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 筛选参与者
+        function filterParticipants() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filteredParticipants = participantsData.filter(participant => {
+                const matchesSearch = participant.name.toLowerCase().includes(searchTerm) ||
+                                    participant.studentId.toLowerCase().includes(searchTerm);
+
+                const matchesStatus = statusFilter === 'all' ||
+                                    (statusFilter === 'checkedin' && participant.checkInStatus) ||
+                                    (statusFilter === 'notcheckedin' && !participant.checkInStatus);
+
+                return matchesSearch && matchesStatus;
+            });
+
+            // 更新列表
+            const participantsList = document.getElementById('participantsList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredParticipants.length === 0) {
+                participantsList.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <p>没有找到匹配的学生</p>
+                    <p class="subtext">请尝试调整搜索条件</p>
+                `;
+                return;
+            }
+
+            participantsList.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            participantsList.innerHTML = filteredParticipants.map(participant => `
+                <div class="participant-card ${participant.checkInStatus ? 'checked-in' : ''}">
+                    <div class="participant-header">
+                        <div class="participant-name">
+                            <i class="fas fa-user-circle"></i>
+                            ${participant.name}
+                        </div>
+                        <div class="participant-status ${participant.checkInStatus ? 'status-checkedin' : 'status-notcheckedin'}">
+                            ${participant.checkInStatus ? '<i class="fas fa-check-circle"></i>' : '<i class="far fa-clock"></i>'}
+                            ${participant.checkInStatus ? '已签到' : '未签到'}
+                        </div>
+                    </div>
+                    <div class="participant-info">
+                        <div class="info-row">
+                            <i class="fas fa-id-card"></i>
+                            <span>学号: ${participant.studentId}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>学院: ${participant.college || '未填写'}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-users"></i>
+                            <span>班级: ${participant.majorClass || '未填写'}</span>
+                        </div>
+                        <div class="info-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>报名时间: ${formatDateTime(participant.registrationTime)}</span>
+                        </div>
+                        ${participant.checkInStatus ? `
+                        <div class="info-row checked-in">
+                            <i class="fas fa-check-circle"></i>
+                            <span>签到时间: ${formatDateTime(participant.checkInTime)}</span>
+                        </div>
+                        ` : `
+                        <div class="info-row not-checked-in">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>尚未签到</span>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="header">
+                    <h1><i class="fas fa-exclamation-triangle"></i> 加载失败</h1>
+                    <button class="btn btn-primary" onclick="window.location.href='activity-manage.html'">
+                        <i class="fas fa-arrow-left"></i> 返回活动管理
+                    </button>
+                </div>
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                    <p class="subtext">请刷新页面重试或返回上一页</p>
+                </div>
+            `;
+        }
+
+        // 工具函数：格式化日期时间
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '未设置';
+            const date = new Date(dateTimeStr);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

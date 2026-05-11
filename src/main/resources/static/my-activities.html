@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的活动 - 社团管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 自定义变量 */
+        :root {
+            --primary-color: #667eea;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-color: #f093fb;
+            --accent-color: #4facfe;
+            --success-color: #4ade80;
+            --warning-color: #fbbf24;
+            --danger-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 24px 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            background: linear-gradient(135deg, #667eea05 0%, #764ba205 100%);
+        }
+
+        .tab.active::before {
+            transform: scaleX(1);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.05);
+            color: var(--primary-color);
+        }
+
+        /* 活动网格 */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+        }
+
+        /* 活动卡片 */
+        .activity-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* 活动头部 */
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-right: 10px;
+        }
+
+        /* 活动状态 */
+        .activity-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-registered {
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+            color: #1e40af;
+        }
+
+        .status-checked-in {
+            background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+            color: #15803d;
+        }
+
+        .status-ended {
+            background: linear-gradient(135deg, #f3f4f6 0%, #f9fafb 100%);
+            color: #4b5563;
+        }
+
+        /* 活动信息 */
+        .activity-info {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-item i {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        /* 活动操作 */
+        .activity-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 加载状态 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .loading i {
+            font-size: 32px;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .activity-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .activity-card {
+                padding: 20px;
+            }
+
+            .activity-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-tasks"></i> 我的活动</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'">
+            <i class="fas fa-arrow-left"></i> 返回仪表盘
+        </button>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('registered')">已报名</div>
+        <div class="tab" onclick="switchTab('checked-in')">已签到</div>
+        <div class="tab" onclick="switchTab('history')">历史记录</div>
+    </div>
+
+    <!-- 搜索和筛选区域 -->
+    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <div style="position: relative;">
+                <input type="text" id="activitySearch" placeholder="搜索活动名称、地点..." 
+                       style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <i class="fas fa-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px;"></i>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: flex-end;">
+            <div>
+                <label for="activityStatusFilter" style="display: block; margin-bottom: 8px; font-weight: 600; color: #343a40; font-size: 14px;">活动状态</label>
+                <select id="activityStatusFilter" 
+                        style="padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; background: white; color: #333; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <option value="">全部状态</option>
+                    <option value="PENDING">待审核</option>
+                    <option value="PUBLISHED">已发布</option>
+                    <option value="REJECTED">已驳回</option>
+                    <option value="ENDED">已结束</option>
+                </select>
+            </div>
+            <div>
+                <button id="searchResetBtn" class="btn btn-primary" style="margin-top: 25px;">
+                    <i class="fas fa-sync-alt"></i> 重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="activitiesContainer" class="activity-grid">
+        <!-- 活动列表将通过JavaScript动态生成 -->
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let currentTab = 'registered';
+    let allActivities = [];
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        checkLogin();
+        loadMyActivities();
+        
+        // 添加搜索和筛选事件监听器
+        const searchInput = document.getElementById('activitySearch');
+        const statusFilter = document.getElementById('activityStatusFilter');
+        const resetBtn = document.getElementById('searchResetBtn');
+        
+        // 搜索输入事件（延迟搜索）
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 300);
+        });
+        
+        // 状态筛选变化事件
+        statusFilter.addEventListener('change', applyFilters);
+        
+        // 重置按钮点击事件
+        resetBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            statusFilter.value = '';
+            applyFilters();
+        });
+    });
+
+    // 检查登录状态
+    function checkLogin() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            alert('请先登录');
+            window.location.href = '/index.html';
+            return;
+        }
+
+        currentUser = user;
+    }
+
+    // 切换标签页
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        loadMyActivities();
+    }
+
+    // 加载我的活动
+    async function loadMyActivities() {
+        const container = document.getElementById('activitiesContainer');
+        
+        // 显示加载状态
+        container.innerHTML = `
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/activities/my-registrations', {
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+            const result = await response.json();
+
+            if (result.success && result.data && result.data.length > 0) {
+                allActivities = result.data;
+                applyFilters();
+            } else {
+                allActivities = [];
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>暂无${getTabName()}的活动</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('加载活动列表错误:', error);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>加载活动失败，请稍后重试</p>
+                </div>
+            `;
+        }
+    }
+
+    // 显示活动列表
+    function displayActivities(activities) {
+        const container = document.getElementById('activitiesContainer');
+
+        // 根据当前标签筛选活动
+        let filteredActivities = activities;
+        if (currentTab === 'checked-in') {
+            // 只显示已签到的活动
+            filteredActivities = activities.filter(activity => activity.checkInStatus === true);
+        } else if (currentTab === 'history') {
+            // 只显示已结束的活动
+            filteredActivities = activities.filter(activity => activity.status === 'ENDED');
+        } else {
+            // 显示已报名但未签到且活动未结束的活动
+            filteredActivities = activities.filter(activity => 
+                activity.checkInStatus === false && activity.status !== 'ENDED'
+            );
+        }
+
+        if (filteredActivities.length > 0) {
+            container.innerHTML = filteredActivities.map(activity => {
+                let statusBadge = '';
+                let actions = '';
+
+                // 根据活动状态和签到状态显示正确的状态标签
+                if (activity.status === 'ENDED') {
+                    statusBadge = '<div class="activity-status status-ended">已结束</div>';
+                    actions = '<button class="btn" disabled>已结束</button>';
+                } else if (activity.checkInStatus === true) {
+                    statusBadge = '<div class="activity-status status-checked-in">已签到</div>';
+                    actions = '<button class="btn" disabled>已完成</button>';
+                } else {
+                    statusBadge = '<div class="activity-status status-registered">已报名</div>';
+                    actions = `
+                            <button class="btn btn-danger" onclick="cancelRegistration(${activity.activityId})">
+                                <i class="fas fa-times"></i> 取消报名
+                            </button>
+                        `;
+                }
+
+                return `
+                        <div class="activity-card">
+                            <div class="activity-header">
+                                <div class="activity-title">${activity.activityName}</div>
+                                ${statusBadge}
+                            </div>
+                            <div class="activity-info">
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>时间: ${formatDateTime(activity.activityTime)}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>地点: ${activity.location}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>积分: ${activity.awardPoints}</span>
+                                </div>
+                            </div>
+                            <div class="activity-actions">
+                                ${actions}
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>暂无${getTabName()}的活动</p>
+                    </div>
+                `;
+        }
+    }
+
+    // 获取标签名称
+    function getTabName() {
+        switch(currentTab) {
+            case 'registered': return '已报名';
+            case 'checked-in': return '已签到';
+            case 'history': return '历史';
+            default: return '';
+        }
+    }
+
+    // 取消报名
+    async function cancelRegistration(activityId) {
+        if (!confirm('确定要取消报名吗？')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/activities/${activityId}/register`, {
+                method: 'DELETE',
+                headers: {
+                    'X-User-Id': currentUser.studentId
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('取消报名成功！');
+                loadMyActivities();
+            } else {
+                alert('取消报名失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('取消报名错误:', error);
+            alert('取消报名时发生错误');
+        }
+    }
+
+    // 应用搜索和筛选条件
+    function applyFilters() {
+        const searchTerm = document.getElementById('activitySearch').value.toLowerCase();
+        const statusFilter = document.getElementById('activityStatusFilter').value;
+        
+        let filteredActivities = allActivities;
+        
+        // 先根据当前标签筛选活动
+        if (currentTab === 'checked-in') {
+            // 只显示已签到的活动
+            filteredActivities = filteredActivities.filter(activity => activity.checkInStatus === true);
+        } else if (currentTab === 'history') {
+            // 只显示已结束的活动
+            filteredActivities = filteredActivities.filter(activity => activity.status === 'ENDED');
+        } else {
+            // 显示已报名但未签到且活动未结束的活动
+            filteredActivities = filteredActivities.filter(activity => 
+                activity.checkInStatus === false && activity.status !== 'ENDED'
+            );
+        }
+        
+        // 应用搜索过滤
+        if (searchTerm) {
+            filteredActivities = filteredActivities.filter(activity => {
+                return (
+                    activity.activityName.toLowerCase().includes(searchTerm) ||
+                    (activity.location && activity.location.toLowerCase().includes(searchTerm))
+                );
+            });
+        }
+        
+        // 应用状态过滤
+        if (statusFilter) {
+            filteredActivities = filteredActivities.filter(activity => activity.status === statusFilter);
+        }
+        
+        // 渲染过滤后的活动
+        displayActivities(filteredActivities);
+    }
+
+    // 工具函数
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-CN');
+    }
+</script>
+</body>
+</html>
