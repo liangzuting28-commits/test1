@@ -22,6 +22,13 @@ public class ActivityRegistration {
     @Column(name = "registration_time")
     private LocalDateTime registrationTime;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private RegistrationStatus status = RegistrationStatus.PENDING;
+
+    @Column(name = "reject_reason")
+    private String rejectReason;
+
     @Column(name = "check_in_status")
     private Boolean checkInStatus = false;
 
@@ -31,6 +38,13 @@ public class ActivityRegistration {
     @Column(name = "check_in_method")
     @Enumerated(EnumType.STRING)
     private CheckInMethod checkInMethod;
+
+    // 报名状态枚举
+    public enum RegistrationStatus {
+        PENDING,    // 待审核
+        APPROVED,   // 已通过
+        REJECTED    // 已拒绝
+    }
 
     // 签到方式枚举
     public enum CheckInMethod {

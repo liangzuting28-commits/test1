@@ -4,16 +4,22 @@ import com.club.managementsystem.dto.LoginRequest;
 import com.club.managementsystem.dto.LoginResponse;
 import com.club.managementsystem.entity.Student;
 import com.club.managementsystem.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.club.managementsystem.util.JwtUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
 public class AuthService {
     private final StudentRepository studentRepository;
-    
-    public AuthService(StudentRepository studentRepository) {
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    public AuthService(StudentRepository studentRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.studentRepository = studentRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -44,24 +50,19 @@ public class AuthService {
             return response;
         }
 
-        // 验证密码（简化版，实际应该使用加密密码）
-        if (!student.getPassword().equals(loginRequest.getPassword())) {
+        // 验证密码（BCrypt 加密）
+        if (!passwordEncoder.matches(loginRequest.getPassword(), student.getPassword())) {
             response.setSuccess(false);
             response.setMessage("密码错误");
             return response;
         }
 
-        // 生成token（简化版，实际应该使用JWT）
-        String token = generateToken(student);
+        // 生成 JWT token
+        String token = jwtUtil.generateToken(student.getStudentId(), student.getName(), student.getRole().name());
         response.setSuccess(true);
         response.setMessage("登录成功");
         response.setToken(token);
         response.setUser(LoginResponse.UserInfo.fromStudent(student));
         return response;
-    }
-
-    private String generateToken(Student student) {
-        // 简化版token生成，实际应该使用JWT
-        return "token_" + student.getStudentId() + "_" + System.currentTimeMillis();
     }
 }
