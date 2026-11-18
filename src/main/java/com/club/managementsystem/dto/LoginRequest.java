@@ -15,6 +15,8 @@ public class LoginRequest {
     @NotBlank(message = "角色不能为空")
     private String role;
 
+    private Boolean autoLogin; // 是否自动登录（持久化 cookie）
+
     public Student.Role getRoleEnum() {
         try {
             return Student.Role.valueOf(role.toUpperCase());

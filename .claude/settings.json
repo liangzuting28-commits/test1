@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sI \"http://localhost:8080/vue/fontawesome/css/all.min.css\")",
+      "Bash(curl -sI \"http://localhost:8080/vue/fontawesome/webfonts/fa-solid-900.woff2\")",
+      "Bash(curl -s \"http://localhost:8080/vue/fontawesome/css/all.min.css\")",
+      "Bash(python convert_to_docx.py)",
+      "Bash(./mvnw package *)",
+      "Bash(python write_exp6.py)",
+      "Bash(cmd.exe /c \"netstat -ano | findstr 8080\")",
+      "Bash(powershell.exe -Command \"Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object OwningProcess\")",
+      "Bash(pip install *)",
+      "Bash(python md2docx.py)",
+      "Bash(python -c ' *)",
+      "Bash(python md2docx_final.py)"
+    ]
+  }
+}

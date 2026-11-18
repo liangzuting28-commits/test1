@@ -71,6 +71,7 @@ public class ActivityController {
                 activityInfo.put("description", activity.getDescription());
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())

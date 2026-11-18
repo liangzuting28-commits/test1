@@ -52,9 +52,14 @@ public class Activity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    // 在 Activity 实体中添加活动类型字段（如果还没有）
     @Column(name = "activity_type", length = 20)
     private String activityType;
+
+    @Column(name = "poster_file_id")
+    private Long posterFileId;
+
+    @Column(name = "plan_file_id")
+    private Long planFileId;
 
     public enum Status {
         PENDING,       // 待审核

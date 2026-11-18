@@ -115,7 +115,8 @@ public class ActivityService {
         System.out.println("开始为活动 " + activityId + " 的已签到学生发放积分");
 
         for (ActivityRegistration registration : registrations) {
-            if (registration.getCheckInStatus()) {
+            // 只给已通过审核且已签到的学生发积分
+            if (registration.getCheckInStatus() && registration.getStatus() == ActivityRegistration.RegistrationStatus.APPROVED) {
                 // 检查是否已经发放过积分 - 修复：使用正确的repository和方法
                 List<PointsRecord> existingRecords = pointsRecordRepository.findByStudentId(registration.getStudentId())
                         .stream()
@@ -223,9 +224,9 @@ public class ActivityService {
             throw new RuntimeException("您已经报名该活动");
         }
 
-        // 检查人数限制
-        long currentParticipants = activityRegistrationRepository.countByActivityId(activityId);
-        if (activity.getMaxParticipants() > 0 && currentParticipants >= activity.getMaxParticipants()) {
+        // 检查人数限制（只计算已通过的报名）
+        long approvedCount = activityRegistrationRepository.countByActivityIdAndStatus(activityId, ActivityRegistration.RegistrationStatus.APPROVED);
+        if (activity.getMaxParticipants() > 0 && approvedCount >= activity.getMaxParticipants()) {
             throw new RuntimeException("活动人数已满，无法报名");
         }
 
@@ -256,6 +257,23 @@ public class ActivityService {
         activityRegistrationRepository.delete(registration);
     }
 
+    // 社长通过报名
+    public void approveRegistration(Integer registrationId) {
+        ActivityRegistration registration = activityRegistrationRepository.findById(registrationId)
+                .orElseThrow(() -> new RuntimeException("报名记录不存在"));
+        registration.setStatus(ActivityRegistration.RegistrationStatus.APPROVED);
+        activityRegistrationRepository.save(registration);
+    }
+
+    // 社长拒绝报名
+    public void rejectRegistration(Integer registrationId, String reason) {
+        ActivityRegistration registration = activityRegistrationRepository.findById(registrationId)
+                .orElseThrow(() -> new RuntimeException("报名记录不存在"));
+        registration.setStatus(ActivityRegistration.RegistrationStatus.REJECTED);
+        registration.setRejectReason(reason);
+        activityRegistrationRepository.save(registration);
+    }
+
     // 获取学生报名的活动（包含签到状态）
     public List<Map<String, Object>> getStudentRegisteredActivitiesWithCheckIn(String studentId) {
         List<ActivityRegistration> registrations = activityRegistrationRepository.findByStudentId(studentId);
@@ -273,6 +291,8 @@ public class ActivityService {
                         activityInfo.put("awardPoints", activity.getAwardPoints());
                         activityInfo.put("checkInStatus", registration.getCheckInStatus());
                         activityInfo.put("registrationTime", registration.getRegistrationTime());
+                        activityInfo.put("registrationStatus", registration.getStatus() != null ? registration.getStatus().toString() : "PENDING");
+                        activityInfo.put("rejectReason", registration.getRejectReason());
                         // 获取社团名称
                         if (activity.getClubId() != null) {
                             String clubName = clubRepository.findById(activity.getClubId())
@@ -465,6 +485,7 @@ public class ActivityService {
             participant.put("studentId", registration.getStudentId());
             participant.put("activityId", registration.getActivityId());
             participant.put("registrationTime", registration.getRegistrationTime());
+            participant.put("status", registration.getStatus() != null ? registration.getStatus().toString() : "PENDING");
             participant.put("checkInStatus", registration.getCheckInStatus());
             participant.put("checkInTime", registration.getCheckInTime());
             participant.put("checkInMethod", registration.getCheckInMethod() != null ? registration.getCheckInMethod().toString() : null);

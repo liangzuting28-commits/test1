@@ -5,16 +5,25 @@ import com.club.managementsystem.dto.ActivityStatusUpdate;
 import com.club.managementsystem.dto.ApiResponse;
 import com.club.managementsystem.entity.Activity;
 import com.club.managementsystem.entity.Club;
+import com.club.managementsystem.entity.FileRecord;
 import com.club.managementsystem.repository.ClubRepository;
+import com.club.managementsystem.repository.FileRecordRepository;
 import com.club.managementsystem.service.ActivityService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,44 +32,104 @@ import java.util.stream.Collectors;
 public class ActivityManageController {
     private final ActivityService activityService;
     private final ClubRepository clubRepository;
-    
-    public ActivityManageController(ActivityService activityService, ClubRepository clubRepository) {
+    private final FileRecordRepository fileRecordRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    public ActivityManageController(ActivityService activityService, ClubRepository clubRepository, FileRecordRepository fileRecordRepository) {
         this.activityService = activityService;
         this.clubRepository = clubRepository;
+        this.fileRecordRepository = fileRecordRepository;
     }
 
-    // 社长创建活动
+    // 社长创建活动（支持文件上传）
     @PostMapping("/create")
     public ResponseEntity<?> createActivity(
-            @RequestBody ActivityRequest request,
+            @RequestPart("data") ActivityRequest request,
+            @RequestPart(value = "posterFile", required = false) MultipartFile posterFile,
+            @RequestPart(value = "planFile", required = false) MultipartFile planFile,
             @RequestHeader("X-User-Id") String presidentId) {
         try {
             Activity activity = activityService.createActivity(request, presidentId);
-            Map<String, Object> activityInfo = new HashMap<>();
-            activityInfo.put("activityId", activity.getActivityId());
-            activityInfo.put("activityName", activity.getActivityName());
-            activityInfo.put("clubId", activity.getClubId());
-            activityInfo.put("activityTime", activity.getActivityTime());
-            activityInfo.put("location", activity.getLocation());
-            activityInfo.put("maxParticipants", activity.getMaxParticipants());
-            activityInfo.put("awardPoints", activity.getAwardPoints());
-            activityInfo.put("description", activity.getDescription());
-            activityInfo.put("status", activity.getStatus());
-            activityInfo.put("activityType", activity.getActivityType());
-            activityInfo.put("createdAt", activity.getCreatedAt());
-            // 获取真实的社团名称
-            if (activity.getClubId() != null) {
-                String clubName = clubRepository.findById(activity.getClubId())
-                        .map(Club::getClubName)
-                        .orElse("未知社团");
-                activityInfo.put("clubName", clubName);
-            } else {
-                activityInfo.put("clubName", "未知社团");
+
+            // 保存宣传图片
+            if (posterFile != null && !posterFile.isEmpty()) {
+                FileRecord record = saveFile(posterFile, presidentId);
+                if (record != null) {
+                    activity.setPosterFileId(record.getFileId());
+                }
             }
+
+            // 保存策划书
+            if (planFile != null && !planFile.isEmpty()) {
+                FileRecord record = saveFile(planFile, presidentId);
+                if (record != null) {
+                    activity.setPlanFileId(record.getFileId());
+                }
+            }
+
+            // 更新活动（如果有文件引用）
+            if (activity.getPosterFileId() != null || activity.getPlanFileId() != null) {
+                activity = activityService.save(activity);
+            }
+
+            Map<String, Object> activityInfo = buildActivityInfo(activity);
             return ResponseEntity.ok(ApiResponse.success("活动创建成功，等待审核", activityInfo));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error("活动创建失败: " + e.getMessage()));
         }
+    }
+
+    private FileRecord saveFile(MultipartFile file, String uploaderId) throws IOException {
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        String storedName = UUID.randomUUID().toString() + extension;
+        Path filePath = uploadPath.resolve(storedName);
+        file.transferTo(filePath.toFile());
+
+        FileRecord record = new FileRecord();
+        record.setOriginalName(originalFilename);
+        record.setStoredName(storedName);
+        record.setFilePath(filePath.toString());
+        record.setFileSize(file.getSize());
+        record.setContentType(file.getContentType());
+        record.setUploaderId(uploaderId);
+        return fileRecordRepository.save(record);
+    }
+
+    private Map<String, Object> buildActivityInfo(Activity activity) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("activityId", activity.getActivityId());
+        info.put("activityName", activity.getActivityName());
+        info.put("clubId", activity.getClubId());
+        info.put("activityTime", activity.getActivityTime());
+        info.put("location", activity.getLocation());
+        info.put("maxParticipants", activity.getMaxParticipants());
+        info.put("awardPoints", activity.getAwardPoints());
+        info.put("description", activity.getDescription());
+        info.put("status", activity.getStatus());
+        info.put("activityType", activity.getActivityType());
+        info.put("createdAt", activity.getCreatedAt());
+        info.put("posterFileId", activity.getPosterFileId());
+        info.put("planFileId", activity.getPlanFileId());
+        if (activity.getClubId() != null) {
+            String clubName = clubRepository.findById(activity.getClubId())
+                    .map(Club::getClubName)
+                    .orElse("未知社团");
+            info.put("clubName", clubName);
+        } else {
+            info.put("clubName", "未知社团");
+        }
+        return info;
     }
 
     // 社长结束活动
@@ -82,6 +151,8 @@ public class ActivityManageController {
             activityInfo.put("status", activity.getStatus());
             activityInfo.put("activityType", activity.getActivityType());
             activityInfo.put("createdAt", activity.getCreatedAt());
+            activityInfo.put("posterFileId", activity.getPosterFileId());
+            activityInfo.put("planFileId", activity.getPlanFileId());
             // 获取真实的社团名称
             if (activity.getClubId() != null) {
                 String clubName = clubRepository.findById(activity.getClubId())
@@ -119,6 +190,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())
@@ -157,6 +230,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())
@@ -193,6 +268,34 @@ public class ActivityManageController {
         }
     }
 
+    // 社长通过学生报名
+    @PutMapping("/registrations/{registrationId}/approve")
+    public ResponseEntity<?> approveRegistration(
+            @PathVariable Integer registrationId,
+            @RequestHeader("X-User-Id") String userId) {
+        try {
+            activityService.approveRegistration(registrationId);
+            return ResponseEntity.ok(ApiResponse.success("已通过报名", null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.error("操作失败: " + e.getMessage()));
+        }
+    }
+
+    // 社长拒绝学生报名
+    @PutMapping("/registrations/{registrationId}/reject")
+    public ResponseEntity<?> rejectRegistration(
+            @PathVariable Integer registrationId,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody(required = false) Map<String, String> body) {
+        try {
+            String reason = body != null ? body.get("reason") : null;
+            activityService.rejectRegistration(registrationId, reason);
+            return ResponseEntity.ok(ApiResponse.success("已拒绝报名", null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.error("操作失败: " + e.getMessage()));
+        }
+    }
+
     // 获取所有活动（管理员和社长用）
     @GetMapping("/all-activities")
     public ResponseEntity<?> getAllActivities() {
@@ -212,6 +315,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 activityInfo.put("rejectReason", activity.getRejectReason());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
@@ -249,6 +354,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())
@@ -285,6 +392,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())
@@ -321,6 +430,8 @@ public class ActivityManageController {
                 activityInfo.put("status", activity.getStatus());
                 activityInfo.put("activityType", activity.getActivityType());
                 activityInfo.put("createdAt", activity.getCreatedAt());
+                activityInfo.put("posterFileId", activity.getPosterFileId());
+                activityInfo.put("planFileId", activity.getPlanFileId());
                 // 获取真实的社团名称
                 if (activity.getClubId() != null) {
                     String clubName = clubRepository.findById(activity.getClubId())
@@ -358,6 +469,8 @@ public class ActivityManageController {
             activityInfo.put("status", activity.getStatus());
             activityInfo.put("activityType", activity.getActivityType());
             activityInfo.put("createdAt", activity.getCreatedAt());
+            activityInfo.put("posterFileId", activity.getPosterFileId());
+            activityInfo.put("planFileId", activity.getPlanFileId());
             // 获取真实的社团名称
             if (activity.getClubId() != null) {
                 String clubName = clubRepository.findById(activity.getClubId())

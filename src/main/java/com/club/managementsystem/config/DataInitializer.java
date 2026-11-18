@@ -4,6 +4,8 @@ import com.club.managementsystem.entity.*;
 import com.club.managementsystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -12,10 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Order(2)
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private StudentRepository studentRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private ClubRepository clubRepository;
     @Autowired
@@ -141,7 +146,7 @@ public class DataInitializer implements CommandLineRunner {
             wangPresident.setCollege("计算机学院");
             wangPresident.setMajorClass("计算机科学与技术3班");
             wangPresident.setRole(Student.Role.PRESIDENT);
-            wangPresident.setPassword("123456");
+            wangPresident.setPassword(passwordEncoder.encode("123456"));
             wangPresident.setTotalPoints(0);
             wangPresident.setPhone("13800138001");
             wangPresident.setEmail("wang_president@club-system.com");
@@ -154,7 +159,7 @@ public class DataInitializer implements CommandLineRunner {
             liuPresident.setCollege("人文学院");
             liuPresident.setMajorClass("汉语言文学1班");
             liuPresident.setRole(Student.Role.PRESIDENT);
-            liuPresident.setPassword("123456");
+            liuPresident.setPassword(passwordEncoder.encode("123456"));
             liuPresident.setTotalPoints(0);
             liuPresident.setPhone("13800138002");
             liuPresident.setEmail("liu_president@club-system.com");
@@ -167,7 +172,7 @@ public class DataInitializer implements CommandLineRunner {
             chenPresident.setCollege("经济学院");
             chenPresident.setMajorClass("金融学2班");
             chenPresident.setRole(Student.Role.PRESIDENT);
-            chenPresident.setPassword("123456");
+            chenPresident.setPassword(passwordEncoder.encode("123456"));
             chenPresident.setTotalPoints(0);
             chenPresident.setPhone("13800138003");
             chenPresident.setEmail("chen_president@club-system.com");
@@ -180,7 +185,7 @@ public class DataInitializer implements CommandLineRunner {
             yangPresident.setCollege("建筑学院");
             yangPresident.setMajorClass("建筑学3班");
             yangPresident.setRole(Student.Role.PRESIDENT);
-            yangPresident.setPassword("123456");
+            yangPresident.setPassword(passwordEncoder.encode("123456"));
             yangPresident.setTotalPoints(0);
             yangPresident.setPhone("13800138004");
             yangPresident.setEmail("yang_president@club-system.com");
@@ -193,7 +198,7 @@ public class DataInitializer implements CommandLineRunner {
             zhangSan.setCollege("计算机学院");
             zhangSan.setMajorClass("计算机科学与技术1班");
             zhangSan.setRole(Student.Role.STUDENT);
-            zhangSan.setPassword("123456");
+            zhangSan.setPassword(passwordEncoder.encode("123456"));
             zhangSan.setTotalPoints(8);
             zhangSan.setPhone("13800138005");
             zhangSan.setEmail("zhang_san@club-system.com");
@@ -205,7 +210,7 @@ public class DataInitializer implements CommandLineRunner {
             liSi.setCollege("计算机学院");
             liSi.setMajorClass("计算机科学与技术2班");
             liSi.setRole(Student.Role.STUDENT);
-            liSi.setPassword("123456");
+            liSi.setPassword(passwordEncoder.encode("123456"));
             liSi.setTotalPoints(0);
             liSi.setPhone("13800138006");
             liSi.setEmail("li_si@club-system.com");
@@ -218,7 +223,7 @@ public class DataInitializer implements CommandLineRunner {
             teacherZhang.setCollege("团委");
             teacherZhang.setMajorClass("教师");
             teacherZhang.setRole(Student.Role.TEACHER);
-            teacherZhang.setPassword("123456");
+            teacherZhang.setPassword(passwordEncoder.encode("123456"));
             teacherZhang.setTotalPoints(0);
             teacherZhang.setPhone("13800138007");
             teacherZhang.setEmail("zhang_teacher@club-system.com");

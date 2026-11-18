@@ -1,0 +1,1156 @@
+社团管理系统分析及设计
+课 程 报 告
+课程名称：软件系统分析与设计
+学    院：XX学院
+专    业：软件工程
+班    级：XX班
+学    号：XXXXXXXXXX
+姓    名：XXX
+指导教师：XXX
+目  录
+一、业务概况
+  1.1 社团性质
+  1.2 部门简述
+  1.3 岗位设置
+二、组织结构
+三、业务目标
+四、涉众分析
+  4.1 涉众概要
+  4.2 涉众简档
+  4.3 用户概要
+  4.4 用户简档
+  4.5 涉众评估
+五、业务建模
+  5.1 内部管理业务
+  5.2 外部管理业务
+六、领域建模
+  6.1 内部管理领域模型
+  6.2 外部管理领域模型
+  6.3 领域模型验证与数据完备性分析
+七、业务规则
+  7.1 全局业务规则
+  7.2 交互业务规则
+  7.3 内禀业务规则
+八、概念建模
+  8.1 获取概念用例
+  8.2 分析概念用例
+  8.3 建立概念模型
+九、系统建模
+  9.1 明确系统用户
+  9.2 活动内部系统用例
+  9.3 活动外部系统用例
+  9.4 软件架构和框架
+  9.5 系统分析模型
+十、系统设计
+  10.1 系统设计模型
+  10.2 包/接口的设计
+  10.3 数据库设计
+一、业务概况
+1.1 社团性质
+高校学生社团是由在校学生依据兴趣爱好自愿组成、按照章程自主开展活动的学生组织，是高校校园文化建设的重要载体。本系统管理的社团涵盖：
+学术科技类：计算机协会、数学建模社等，以学术交流和技能提升为目标。
+文化艺术类：音乐社、书法协会等，以文艺素养培养为导向。
+体育竞技类：篮球社、羽毛球协会等，以强身健体和竞技比赛为宗旨。
+志愿公益类：青年志愿者协会等，以社会服务和公益活动为核心。
+社团实行学校团委指导下的自主管理机制。团委教师负责审批、监督和考核，社长负责日常运营管理，普通成员参与活动并积累积分。
+1.2 部门简述
+一个典型的学生社团通常设置以下部门/职能组：
+部门
+职能说明
+典型人数
+社长团
+统筹社团全局工作，对外代表社团
+1-2人
+组织部
+活动策划、场地申请、流程安排
+3-5人
+宣传部
+社团宣传、海报设计、新媒体运营
+2-4人
+财务部
+经费管理、物资采购与报销
+1-2人
+外联部
+与其他社团、校外单位联络合作
+2-3人
+1.3 岗位设置
+系统涉及以下核心岗位角色：
+岗位
+职责描述
+系统角色
+管理员ADMIN
+系统运维、数据管理、账号管理
+管理员
+教师TEACHER
+社团审批、活动审核、监督考核
+教师
+社长PRESIDENT
+社团日常管理、活动创建、成员审批
+社长
+社团管理员MANAGER
+协助社长管理社团事务
+社团管理员
+普通成员STUDENT
+加入社团、报名活动、签到、查积分
+学生
+【UML图：组织结构图 - 类图绘制，展示社团组织层级】
+二、组织结构
+社团管理系统的组织结构分为学校行政层面和社团内部层面。
+学校行政层面：校团委作为最高管理层，下设指导教师若干名，每位教师负责指导若干个社团。教师拥有社团创建、活动审核、社长任免等管理权限。
+社团内部层面：每个社团设社长一名，下设社团管理员和普通成员。社长负责日常运营，包括活动创建与发布、成员招募与审批、签到管理、积分发放等。
+系统还设有独立的系统管理员岗位，负责系统层面的用户管理、数据维护和系统配置。
+【UML图：组织结构图 - 类图绘制，展示团委-教师-社长-成员的层级关系】
+三、业务目标
+本系统的业务目标是构建覆盖社团全生命周期管理的信息化平台：
+（1）社团管理数字化：社团创建、审批、成员管理全流程线上化，替代纸质审批。
+（2）活动管理规范化：建立活动从创建-审核-发布-报名-签到-结束-积分发放的完整生命周期，实现两级审核（教师审核活动、社长审核报名）。
+（3）签到管理智能化：支持扫码签到和手动签到，自动生成签到二维码和签到码。
+（4）积分体系化：基于活动类型的积分规则，活动结束后自动为已签到学生发放积分。
+（5）数据可视化：多维度统计分析，为管理决策提供数据支撑。
+（6）多角色协同：管理员、教师、社长、学生四种角色协同工作，精细化权限管理。
+四、涉众分析
+4.1 涉众概要
+编号
+名称
+说明
+期望
+S01
+系统管理员
+系统运维和数据管理
+系统稳定运行，数据准确
+S02
+指导教师
+社团审批、活动审核、社长管理
+审批高效，掌握社团动态
+S03
+社长
+社团日常运营和活动管理
+操作便捷，快速管理
+S04
+社团管理员
+协助社长管理事务
+分担工作，权限适当
+S05
+普通学生
+报名签到、查看积分
+界面友好，操作简单
+S06
+学校团委
+社团上级管理机构
+数据统计准确，便于决策
+4.2 涉众简档
+涉众简档：系统管理员
+项目
+内容
+涉众编号
+S01
+涉众名称
+系统管理员
+涉众职责
+系统日常运维、用户账号管理、数据备份恢复
+成功标准
+系统7x24稳定运行，数据零丢失
+参与活动
+用户管理、数据维护、系统监控、日志审计
+意见/问题
+需要完善的后台管理和日志追踪
+涉众简档：指导教师
+项目
+内容
+涉众编号
+S02
+涉众名称
+指导教师
+涉众职责
+社团创建审批、活动审核批准、社长任命更换、运营监督考核
+成功标准
+审批流程简洁高效，全面掌握社团运营
+参与活动
+创建社团、审核活动、更换社长、查看统计
+意见/问题
+纸质审批效率低，需要在线审批
+涉众简档：社长
+项目
+内容
+涉众编号
+S03
+涉众名称
+社长
+涉众职责
+创建活动、审批报名、管理签到、发放积分、维护社团信息
+成功标准
+高效管理成员和活动，减少重复工作
+参与活动
+创建活动、审批报名、生成签到码、结束活动发积分
+意见/问题
+成员管理和签到统计工作量大
+涉众简档：社团管理员
+项目
+内容
+涉众编号
+S04
+涉众名称
+社团管理员
+涉众职责
+协助社长审批报名、协助签到管理、协助活动组织
+成功标准
+有效分担社长工作，权限适当
+参与活动
+查看社团成员、协助审批、协助签到
+意见/问题
+希望有独立操作入口，权限由社长分配
+涉众简档：普通学生
+项目
+内容
+涉众编号
+S05
+涉众名称
+普通学生
+涉众职责
+浏览社团活动、申请加入、报名签到、查看积分
+成功标准
+操作简单直观，积分记录准确
+参与活动
+浏览社团、申请加入、报名活动、扫码签到
+意见/问题
+希望一站式完成全流程
+涉众简档：学校团委
+项目
+内容
+涉众编号
+S06
+涉众名称
+学校团委
+涉众职责
+社团宏观管理、政策制定、考核评估
+成功标准
+获取全校社团运营数据，便于决策
+参与活动
+查看统计、制定规则、考核社团
+意见/问题
+需要多维度统计报表，便于年度考核
+4.3 用户概要
+编号
+名称
+类型
+频率
+场景
+U01
+管理员
+系统用户
+每日
+系统管理与数据维护
+U02
+教师
+系统用户
+每周数次
+社团审批、活动审核
+U03
+社长
+系统用户
+每周数次
+活动创建、成员管理
+U04
+社团管理员
+系统用户
+每周数次
+协助社长管理
+U05
+学生
+系统用户
+每周数次
+报名、签到、查积分
+4.4 用户简档
+用户简档：学生（核心用户群体）
+项目
+内容
+用户名
+U05-学生
+用户身份
+在校普通学生，可能是多个社团成员
+使用目标
+浏览加入社团，报名活动，签到，查看积分
+使用场景
+浏览社团-申请加入-查看活动-报名-签到-查积分
+技术能力
+基本计算机操作，熟悉Web浏览器
+特殊需求
+移动端适配，操作简洁
+4.5 涉众评估
+核心涉众为学生和社长，合计占用户总量90%以上。学生是主要使用者，使用体验直接影响推广效果；社长是核心管理者，操作效率影响社团运营质量。教师和管理员拥有关键审批权限，是系统正常运转的保障。
+从影响力和关注度维度：学生和社长属高影响力-高关注度核心涉众；教师属高影响力-中关注度关键涉众；管理员属中影响力-低关注度支撑涉众。
+五、业务建模
+5.1 内部管理业务
+内部管理业务是社团内部的日常管理活动，涉及社长、社团管理员和普通成员之间的交互。
+5.1.1 社团成员管理业务
+社团成员管理包括成员招募、审批、角色变更和退出管理。
+业务流程：学生浏览社团列表-提交加入申请（PENDING）-社长审批（通过/拒绝）-已加入成员可申请退出-社长可移除成员（需填原因）-社长可调整角色（MEMBER与MANAGER互换）-教师可更换社长（旧社长降为MEMBER）。
+【UML图：活动图：社团成员管理 - 按学生、社长、教师泳道绘制】
+5.1.2 积分管理业务
+积分管理是激励学生参与社团活动的重要机制。
+业务流程：管理员配置积分规则（按活动类型设定基础积分）-社长创建活动时系统自动匹配积分规则-活动结束后社长结束活动-系统自动为已通过审核且已签到的学生发放积分-积分记录关联学生和活动。
+【UML图：活动图：积分发放流程 - 按管理员、社长、系统泳道绘制】
+5.2 外部管理业务
+外部管理业务涉及跨角色、跨社团的管理活动。
+5.2.1 社团创建与审批业务
+社团创建流程：教师填写社团信息（名称、简介、类型、社长学号）-系统校验名称唯一性-创建社团（ACTIVE）-自动为社长创建PRESIDENT成员记录。教师可更新社团信息、更换社长、删除社团。
+5.2.2 活动全生命周期管理业务
+活动管理是本系统最核心的业务，涵盖从创建到结束的完整生命周期。
+活动创建阶段：社长填写活动信息（名称、时间、地点、类型、人数上限、描述），上传海报和策划书。系统根据活动类型匹配积分规则，活动状态设为PENDING。
+活动审核阶段：教师查看待审核活动-通过则状态变为PUBLISHED（学生可报名）-驳回则状态变为REJECTED（附驳回原因）。
+活动报名阶段：学生浏览已发布活动-提交报名（PENDING）-系统检查重复报名和人数上限-社长审批（通过APPROVED/拒绝REJECTED）。
+活动签到阶段：社长生成签到二维码（含6位签到码）-学生扫码或输入签到码-系统校验活动状态和报名状态-创建签到记录。
+活动结束阶段：社长结束活动-状态变为ENDED-系统自动为已通过审核且已签到的学生发放积分-更新学生累计积分。
+5.2.3 核心业务用例完整描述——"学生参与活动并获得积分"
+下面以"学生参与活动并获得积分"作为完整核心业务用例，描述从参与者发起到获得有价值的可观察结果的完整活动场景。该用例涉及学生、社长、教师三个参与者，贯穿活动全生命周期。
+用例名称：学生参与活动并获得积分
+主要参与者：学生、社长、教师
+前置条件：教师已创建社团并指定社长，社长已创建活动。
+基本流程（Happy Path）：
+（1）社长创建活动：社长填写活动名称、时间、地点、类型（如"学术讲座"）、人数上限（50人）、描述等信息，上传活动海报。系统根据活动类型自动匹配积分规则（"学术讲座"对应5分），创建活动记录，状态设为PENDING。
+（2）教师审核活动：教师在待审核列表中查看活动详情，审核活动方案合理后点击通过。活动状态变为PUBLISHED，对学生可见。
+（3）学生报名活动：学生浏览已发布的活动列表，看到该活动，点击报名。系统检查：该学生未报名过该活动（防重复）、当前已通过报名数未超过50人（人数上限）。创建报名记录，状态设为PENDING。
+（4）社长审批报名：社长在待审批列表中看到该学生的报名信息，审核后点击通过。报名状态变为APPROVED。
+（5）学生签到：活动当天，社长在系统中生成签到二维码并展示。学生使用手机扫码，系统验证：活动状态为PUBLISHED（活动进行中）、该学生报名状态为APPROVED（已通过审批）、该学生未签过到（防重复签到）。验证通过后，创建CheckIn签到记录，更新ActivityRegistration的checkInStatus为true。
+（6）社长结束活动：活动结束后，社长点击"结束活动"。系统执行以下操作：查询所有报名状态为APPROVED且已签到的学生列表-逐一创建PointsRecord积分记录（积分值=Activity.awardPoints=5分）-逐一更新Student.totalPoints（累加5分）-活动状态变为ENDED。
+（7）学生查看积分：学生登录系统，进入积分页面，看到积分记录中新增了一条"学术讲座 +5分"的记录，个人总积分已增加5分。
+替代流程：
+（2a）教师驳回活动：教师填写驳回原因"活动方案不完善，请补充安全预案"，活动状态变为REJECTED。社长查看驳回原因后修改活动信息重新提交。
+（4a）社长拒绝报名：社长填写拒绝理由"该活动仅限本社团成员参加"，报名状态变为REJECTED。学生无法参加该活动。
+（5a）学生未签到：活动当天学生未到场签到。活动结束时，系统发现该学生虽已通过审批但未签到，不为其发放积分。
+后置条件：活动状态为ENDED，已签到的学生获得积分（PointsRecord记录已创建），学生累计积分（Student.totalPoints）已更新。
+有价值的可观察结果：
+参与者（学生）获得的有价值的可观察结果包括：
+（1）积分获得：PointsRecord记录已创建（studentId=学生学号，activityId=活动ID，pointsEarned=5），Student.totalPoints已增加5分。学生可在积分页面查看到新增的积分记录和更新后的总积分。
+（2）签到确认：CheckIn记录已创建（记录签到时间和方式），ActivityRegistration.checkInStatus=true。学生可在报名列表中看到"已签到"状态。
+（3）活动完结：Activity.status=ENDED，活动从"已发布活动"列表中移除，转入"已结束活动"。
+活动图元素使用说明：
+该核心业务用例对应的活动图中，各UML活动图元素的使用如下：
+（1）初始节点（实心圆）：表示流程起点，即社长发起创建活动。一个活动图有且仅有一个初始节点。
+（2）活动节点（圆角矩形）：表示各个处理步骤，如"创建活动""审核活动""学生报名""审批报名""扫码签到""结束活动""发放积分""查看积分"。每个活动节点代表一个原子操作或一组不可分割的处理。
+（3）判断节点（菱形）：表示条件分支，如"审核是否通过？"（通过-PUBLISHED / 驳回-REJECTED）、"是否重复报名？"（是-提示已报名 / 否-继续）、"是否超过人数上限？"（是-提示已满 / 否-继续）、"是否已签到？"（是-提示已签到 / 否-继续）。每个判断节点有且仅有两个输出分支（是/否）。
+（4）合并节点（菱形）：与判断节点配对使用，将多个分支合并为一个流程。如审核通过和驳回两个分支在后续流程中合并。
+（5）分叉节点与汇合节点（粗横线）：表示并发流程。如签到操作后，同时执行"创建CheckIn记录"和"更新ActivityRegistration签到状态"两个并行动作，随后在汇合节点合并。
+（6）终止节点（实心圆+外圈）：表示流程结束。本用例有两个终止节点：一是教师驳回后流程终止（社长需修改重提），二是学生查看积分后流程正常结束。
+（7）泳道（Swimlane）：按参与者划分为四个泳道——学生泳道、社长泳道、教师泳道、系统泳道。每个活动节点放置在对应执行者的泳道中，明确职责归属。如"创建活动"放在社长泳道，"审核活动"放在教师泳道，"匹配积分规则""发放积分"放在系统泳道。
+（8）对象节点（矩形）：表示活动操作的数据对象，如"活动记录""报名记录""签到记录""积分记录"。通过对象流（虚线箭头）连接活动节点，表示数据的创建和传递。
+【UML图：活动图：核心业务用例"学生参与活动并获得积分" - 按学生、社长、教师、系统四个泳道绘制，包含初始节点、活动节点、判断节点、分叉/汇合节点、终止节点、对象节点】
+六、领域建模
+6.1 内部管理领域模型
+内部管理领域模型描述社团内部管理的核心领域对象及其关系。
+核心领域对象：
+Student（学生）：系统用户实体，包含studentId（学号）、name（姓名）、college（学院）、majorClass（班级）、role（角色枚举）、totalPoints（累计积分）等属性。
+Club（社团）：社团实体，包含clubId、clubName（名称）、introduction（简介）、clubType（类型）、presidentId（社长学号）、status（状态）等属性。
+ClubMembership（社团成员关系）：关联实体，包含studentId、clubId、role（社团内角色枚举）、applicationStatus（申请状态）、joinDate（加入时间）等属性。
+领域对象关系：
+Student与Club通过ClubMembership形成多对多关联（一个学生可加入多个社团，一个社团有多个成员）。
+Student与Club之间存在管理关系（一个社长管理一个社团，通过Club.presidentId关联）。
+ClubMembership依赖于Student和Club，是两者的关联实体，删除Student或Club时需级联删除对应的ClubMembership。
+【UML图：领域模型类图：内部管理 - 展示Student、Club、ClubMembership的关联和依赖关系，标注属性和多重性】
+6.2 外部管理领域模型
+外部管理领域模型描述活动、签到、积分管理的领域对象。
+核心领域对象：
+Activity（活动）：包含activityId、activityName、clubId、activityTime、location、status（枚举）、maxParticipants、awardPoints、activityType、posterFileId、checkInNumber等属性。
+ActivityRegistration（活动报名）：包含registrationId、studentId、activityId、status（枚举）、checkInStatus、checkInTime、checkInMethod、rejectReason等属性。
+CheckIn（签到记录）：包含checkInId、studentId、activityId、checkInTime、checkInType等属性。
+PointsRecord（积分记录）：包含recordId、studentId、activityId、pointsEarned、earnedTime等属性。
+PointsRule（积分规则）：包含ruleId、activityType（唯一）、basePointsValue等属性。
+FileRecord（文件记录）：包含fileId、originalName、storedName、filePath、fileSize、contentType、uploaderId等属性。
+领域对象关系：
+Activity依赖于Club（一个社团创建多个活动，通过clubId关联）。
+ActivityRegistration依赖于Student和Activity（多对多关联，通过studentId和activityId关联）。
+CheckIn依赖于Student和Activity。
+PointsRecord依赖于Student和Activity，活动结束后由系统自动创建。
+Activity关联FileRecord（海报posterFileId和策划书planFileId各一个，0..1关系）。
+【UML图：领域模型类图：外部管理 - 展示Activity、ActivityRegistration、CheckIn、PointsRecord、PointsRule、FileRecord与Student、Club的关联关系】
+6.3 领域模型验证与数据完备性分析
+以核心业务用例"学生参与活动并获得积分"为验证对象，考察领域模型的数据完备性和对象关系的正确性。
+一、业务数据映射验证
+在核心业务用例中，参与者获得的有价值的可观察结果包括：积分记录、签到记录、报名审批结果、活动状态变更。这些结果所涉及的业务数据及其领域对象来源如下：
+（1）积分获得——可观察结果：学生获得5分积分。
+所需数据：积分值（pointsEarned）。来源：Activity.awardPoints（活动积分值，由PointsRule.basePointsValue自动匹配填充）。
+所需数据：学生标识（studentId）。来源：Student.studentId。
+所需数据：活动标识（activityId）。来源：Activity.activityId。
+所需数据：获得时间（earnedTime）。来源：系统自动填充当前时间。
+结论：PointsRecord实体的属性能够完整承载积分发放所需的全部业务数据。——数据完备。
+（2）签到确认——可观察结果：学生签到成功，签到状态已记录。
+所需数据：签到时间（checkInTime）。来源：系统自动记录。
+所需数据：签到方式（checkInType）。来源：SCAN（扫码）或MANUAL（手动）。
+所需数据：签到状态（checkInStatus）。来源：ActivityRegistration.checkInStatus，签到后由false更新为true。
+结论：CheckIn实体和ActivityRegistration实体的属性能够完整承载签到所需的全部业务数据。——数据完备。
+（3）报名审批——可观察结果：报名已通过审核。
+所需数据：审核状态（status）。来源：ActivityRegistration.status，由PENDING更新为APPROVED。
+所需数据：学生信息（姓名、学院）。来源：Student.name、Student.college（通过studentId关联查询）。
+所需数据：活动信息（名称、时间、地点）。来源：Activity.activityName、Activity.activityTime、Activity.location（通过activityId关联查询）。
+结论：ActivityRegistration实体结合Student和Activity的关联查询，能够完整承载报名审批所需的全部业务数据。——数据完备。
+（4）活动完结——可观察结果：活动状态变为ENDED。
+所需数据：活动状态（status）。来源：Activity.status，由PUBLISHED更新为ENDED。
+所需数据：已签到学生列表。来源：查询ActivityRegistration中status=APPROVED且checkInStatus=true的记录。
+结论：Activity实体和ActivityRegistration实体能够支撑活动结束和积分发放的完整数据需求。——数据完备。
+二、领域对象关系验证
+（1）依赖关系：ActivityRegistration依赖Student和Activity（无Student和Activity则ActivityRegistration无意义）。CheckIn依赖Student和Activity。PointsRecord依赖Student和Activity。——在领域模型中通过外键字段（studentId、activityId）正确表达。
+（2）关联关系：Student与Club通过ClubMembership形成多对多关联。Activity与Club形成多对一关联（一个社团有多个活动）。——在领域模型中通过clubId外键和ClubMembership关联实体正确表达。
+（3）组合关系：FileRecord与Activity之间存在组合关系（海报和策划书属于活动的一部分），Activity删除时对应的FileRecord也应清理。——在领域模型中通过posterFileId和planFileId外键表达，级联删除在Service层实现。
+（4）无继承关系：本系统各领域对象之间不存在is-a继承关系。角色差异通过Student.role枚举字段区分，社团内角色差异通过ClubMembership.role枚举字段区分，活动状态差异通过Activity.status枚举字段区分，均采用组合而非继承的方式实现。
+七、业务规则
+7.1 全局业务规则
+编号
+规则名称
+规则描述
+GR01
+用户身份唯一性
+每个学号对应唯一用户，角色为STUDENT/PRESIDENT/TEACHER/ADMIN之一
+GR02
+社团名称唯一性
+系统中不允许存在同名社团
+GR03
+密码安全策略
+密码必须BCrypt加密存储，禁止明文
+GR04
+JWT认证机制
+所有/api/**接口（除白名单外）必须携带有效JWT Token
+GR05
+时间自动填充
+创建时间字段在持久化前由系统自动填充
+7.2 交互业务规则
+编号
+规则名称
+规则描述
+IR01
+社团加入防重复
+同一学生不能重复申请加入同一社团
+IR02
+活动报名防重复
+同一学生不能重复报名同一活动
+IR03
+活动人数限制
+报名人数不超过maxParticipants，只统计APPROVED状态
+IR04
+签到防重复
+同一学生对同一活动只能签到一次
+IR05
+积分防重复发放
+同一学生对同一活动只能获得一次积分
+IR06
+已签到不可取消
+已签到学生不能取消报名
+IR07
+两级审核
+活动由教师审核，报名由社长审核
+IR08
+社长角色保护
+社长不能修改他人为PRESIDENT，教师才能更换社长
+IR09
+级联删除
+删除学生/社团/活动时级联清除所有关联数据
+7.3 内禀业务规则
+编号
+规则名称
+规则描述
+BR01
+积分自动匹配
+创建活动时根据活动类型自动匹配PointsRule中的基础积分
+BR02
+签到码自动生成
+首次生成签到二维码时自动创建6位数字签到码
+BR03
+积分自动发放
+活动结束时自动为已通过审核且已签到的学生发放积分并更新累计积分
+BR04
+旧社长自动降级
+更换社长时旧社长角色自动从PRESIDENT降为MEMBER
+BR05
+密码自动迁移
+系统启动时检测明文密码自动迁移为BCrypt格式
+八、概念建模
+8.1 获取概念用例
+编号
+名称
+参与者
+描述
+UC01
+用户登录
+学生/教师/管理员
+通过学号、密码、角色登录，获取JWT Token
+UC02
+社团管理
+教师/社长
+创建、编辑、删除社团，更换社长
+UC03
+社团加入与审批
+学生/社长
+学生申请加入，社长审批
+UC04
+活动创建与审核
+社长/教师
+社长创建活动，教师审核
+UC05
+活动报名与审批
+学生/社长
+学生报名，社长审批
+UC06
+活动签到
+学生/社长
+扫码或输入签到码签到
+UC07
+活动结束与积分发放
+社长
+结束活动，系统自动发放积分
+UC08
+积分查询与排行
+学生
+查看积分记录和排行榜
+UC09
+数据统计分析
+教师/管理员
+多维度统计数据
+UC10
+文件上传下载
+社长/学生
+上传海报/策划书，下载文件
+8.2 分析概念用例
+以UC04"活动创建与审核"为核心概念用例进行详细分析：
+前置条件：社长已登录，所属社团状态为ACTIVE。
+基本流程：社长进入活动创建页面-填写活动信息-上传海报和策划书-提交-系统匹配积分规则-创建活动（PENDING）-教师查看待审核活动-审核通过-活动状态变为PUBLISHED-学生可见。
+替代流程：教师审核驳回-填写驳回原因-活动状态变为REJECTED-社长查看原因-修改后重新提交。
+后置条件：活动状态为PUBLISHED（学生可报名）或REJECTED（社长可修改重提）。
+【UML图：用例图：核心概念用例 - 展示学生、社长、教师、管理员与各用例的关系】
+8.3 建立概念模型
+从用例中提取分析类，按边界类、控制类、实体类分类：
+以UC04"活动创建与审核"为例：
+类型
+类名
+职责
+边界类
+ActivityCreateForm
+活动创建表单，接收社长输入
+边界类
+ActivityReviewPage
+活动审核页面，展示详情供教师审核
+控制类
+ActivityController
+活动控制器，协调创建和审核流程
+控制类
+ActivityManageController
+活动管理控制器，处理CRUD
+实体类
+Activity
+活动实体，承载核心数据
+实体类
+ActivityRegistration
+报名实体，承载报名和签到数据
+实体类
+PointsRule
+积分规则实体
+实体类
+FileRecord
+文件记录实体
+以UC05"活动报名与审批"为例：
+类型
+类名
+职责
+边界类
+ActivityRegistrationForm
+报名表单
+边界类
+RegistrationReviewList
+报名审批列表
+控制类
+ActivityRegistrationController
+报名控制器
+实体类
+Student
+学生实体
+实体类
+Activity
+活动实体
+实体类
+ActivityRegistration
+报名实体
+【UML图：概念模型类图 - 展示边界类、控制类、实体类之间的关系】
+九、系统建模
+9.1 明确系统用户
+参与者
+角色
+职责
+交互方式
+学生
+STUDENT
+浏览社团/活动、报名、签到、查积分
+Web浏览器
+社长
+PRESIDENT
+创建活动、审批报名/成员、管理签到
+Web浏览器
+教师
+TEACHER
+创建社团、审核活动、更换社长
+Web浏览器
+管理员
+ADMIN
+用户管理、数据维护、积分规则配置
+Web浏览器
+9.2 活动内部系统用例
+系统用例SUC01：学生报名活动
+项目
+内容
+用例名称
+学生报名活动
+参与者
+学生
+前置条件
+学生已登录，活动状态为PUBLISHED
+基本流程
+1.浏览已发布活动-2.查看详情-3.点击报名-4.系统检查重复和人数-5.创建报名（PENDING）-6.提示等待审批
+替代流程
+已报名：提示"已报名"；人数已满：提示"已满"
+后置条件
+创建ActivityRegistration，状态PENDING
+系统用例SUC02：社长审批报名
+项目
+内容
+用例名称
+社长审批报名
+参与者
+社长
+前置条件
+社长已登录，有待审批报名
+基本流程
+1.查看待审批列表-2.查看学生信息-3.点击通过-4.更新状态APPROVED-5.提示成功
+替代流程
+点击拒绝-填理由-更新状态REJECTED
+后置条件
+ActivityRegistration.status更新
+系统用例SUC03：活动签到
+项目
+内容
+用例名称
+活动签到
+参与者
+学生
+前置条件
+已通过报名审批，活动进行中
+基本流程
+1.社长展示签到码-2.学生扫码-3.系统验证状态-4.检查是否已签到-5.创建CheckIn-6.更新签到状态-7.提示成功
+替代流程
+已签到：提示"已完成签到"；未通过审批：提示"未通过审批"
+后置条件
+创建CheckIn，checkInStatus=true
+【UML图：活动图：学生报名-审批-签到流程 - 按学生、社长、系统泳道绘制】
+【UML图：顺序图SSD：学生报名活动 - Student-ActivityRegistrationController-ActivityService-ActivityRegistrationRepository-ActivityRegistration】
+GRASP原则应用：ActivityRegistrationController作为控制器（控制器模式），接收学生报名请求并委托ActivityService处理。ActivityService作为信息专家（信息专家模式），拥有活动状态和人数上限信息，负责判断是否可报名。ActivityService创建ActivityRegistration实例（创建者模式），因其管理报名记录的生命周期。
+【UML图：顺序图SSD：活动签到 - Student-CheckInController-CheckInService-CheckInRepository】
+GRASP原则应用：CheckInController作为控制器（控制器模式），接收签到请求。CheckInService作为信息专家（信息专家模式），拥有活动状态和报名状态信息，负责验证签到条件。CheckInService创建CheckIn实例（创建者模式），因其管理签到记录的生命周期。
+9.3 活动外部系统用例
+系统用例SUC04：教师审核活动
+项目
+内容
+用例名称
+教师审核活动
+参与者
+教师
+前置条件
+有状态PENDING的活动
+基本流程
+1.查看待审核列表-2.查看详情-3.点击通过-4.更新状态PUBLISHED-5.活动对学生可见
+替代流程
+点击驳回-填原因-更新状态REJECTED
+后置条件
+Activity.status更新
+系统用例SUC05：活动结束与积分发放
+项目
+内容
+用例名称
+活动结束与积分发放
+参与者
+社长
+前置条件
+活动状态PUBLISHED
+基本流程
+1.选择活动-2.点击结束-3.查询APPROVED且已签到的记录-4.创建积分记录-5.更新累计积分-6.状态变ENDED
+替代流程
+无符合条件学生：仅结束，不发积分
+后置条件
+Activity.status=ENDED，PointsRecord创建，Student.totalPoints更新
+系统用例SUC06：用户登录认证
+项目
+内容
+用例名称
+用户登录认证
+参与者
+所有用户
+前置条件
+用户已注册
+基本流程
+1.输入学号、密码、角色-2.验证学号-3.验证角色-4.BCrypt验证密码-5.生成JWT-6.写入Cookie-7.返回用户信息
+替代流程
+学号不存在/角色不匹配/密码错误：提示错误
+后置条件
+获得JWT Token，Cookie有效期7天
+【UML图：顺序图SSD：教师审核活动 - Teacher-ActivityManageController-ActivityService-ActivityRepository】
+GRASP原则应用：ActivityManageController作为控制器（控制器模式），接收审核请求。ActivityService作为信息专家（信息专家模式），拥有活动状态信息，负责更新状态。Activity实体自身维护status属性（信息专家模式）。
+【UML图：顺序图SSD：活动结束与积分发放 - President-ActivityManageController-ActivityService-PointsRecordRepository-StudentRepository】
+GRASP原则应用：ActivityManageController作为控制器（控制器模式）。ActivityService作为信息专家（信息专家模式），负责查询签到记录、获取积分规则、计算积分值。ActivityService创建PointsRecord（创建者模式）。Student实体负责更新自身累计积分（信息专家模式）。高内聚：积分发放逻辑集中在endActivity()中；低耦合：通过Repository访问数据。
+【UML图：顺序图SSD：用户登录 - User-AuthController-AuthService-StudentRepository-JwtUtil】
+GRASP原则应用：AuthController作为控制器（控制器模式）。AuthService作为信息专家（信息专家模式），拥有用户验证逻辑。JwtUtil作为信息专家，拥有JWT生成验证的专属知识。高内聚：认证逻辑集中在AuthService；低耦合：通过StudentRepository访问数据。
+9.4 软件架构和框架
+本系统采用前后端分离的B/S架构。
+后端架构分层：
+表现层（Controller）：接收HTTP请求，参数校验，调用Service，返回统一ApiResponse。
+业务逻辑层（Service）：处理核心业务逻辑，事务管理，调用DAO/Repository。
+数据访问层（DAO + Repository）：DAO封装Repository，提供统一数据访问抽象。
+实体层（Entity）：JPA实体类，映射数据库表。
+安全层（Security）：Spring Security + JWT + BCrypt。
+前端架构：Vue 3 + Vite + Vue Router（History模式）+ Pinia（状态管理）+ Axios（HTTP请求）。
+层次
+技术
+版本
+核心框架
+Spring Boot
+3.5.7
+Web框架
+Spring MVC
+内置
+安全框架
+Spring Security
+内置
+持久层
+Spring Data JPA + Hibernate
+内置
+数据库
+MySQL
+8.x
+连接池
+HikariCP
+默认
+JWT
+JJWT
+0.12.x
+前端
+Vue 3
+3.x
+构建
+Vite
+5.x
+状态
+Pinia
+2.x
+HTTP
+Axios
+1.x
+【UML图：部署图 - 展示浏览器-Nginx-Spring Boot-MySQL的部署架构】
+9.5 系统分析模型
+基于GRASP原则进行职责分配：
+（1）创建者模式（Creator）：
+ActivityService创建ActivityRegistration（管理其生命周期）。
+ActivityService创建PointsRecord（管理积分发放逻辑）。
+CheckInService创建CheckIn（管理签到记录生命周期）。
+ClubService创建ClubMembership（管理社团成员关系）。
+（2）控制器模式（Controller）：
+AuthController、ActivityManageController、ActivityRegistrationController、ClubController、CheckInController分别作为各用例的控制器。
+（3）信息专家模式（Information Expert）：
+Activity拥有状态和人数上限，负责判断是否可报名。
+Student拥有累计积分，负责更新自身积分。
+PointsRule拥有积分值，负责提供积分查询。
+（4）高内聚、低耦合评价：
+高内聚：每个Service职责单一（ActivityService处理活动、CheckInService处理签到、PointsService处理积分）。
+低耦合：Controller-Service-DAO-Repository各层通过接口解耦，DAO层隔离了Service与JPA实现细节。
+【UML图：分析模型类图 - 展示Controller、Service、DAO、Repository、Entity各层类及依赖关系】
+十、系统设计
+10.1 系统设计模型
+Controller层设计类：
+类名
+依赖Service
+核心方法
+AuthController
+AuthService
+login(), logout(), getCurrentUser()
+ActivityManageController
+ActivityService, CheckInService
+createActivity(), reviewActivity(), endActivity()
+ActivityRegistrationController
+ActivityService
+register(), cancelRegistration()
+ClubController
+ClubService
+createClub(), applyForClub(), reviewApplication()
+CheckInController
+CheckInService
+scanCheckIn(), manualCheckIn()
+PointsController
+PointsService
+getStudentPoints(), getRanking()
+StatisticsController
+StatisticsService
+getOverview(), getActivityStats()
+Service层设计类：
+类名
+依赖DAO/Repository
+核心方法
+AuthService
+StudentRepository
+login()
+ActivityService
+ActivityDao, ActivityRegistrationDao, PointsRecordDao, PointsRuleDao
+createActivity(), registerActivity(), endActivity()
+ClubService
+ClubDao, ClubMembershipDao, StudentDao
+createClub(), applyForClub(), deleteClub()
+CheckInService
+CheckInDao, ActivityRegistrationDao
+checkIn(), manualCheckIn()
+PointsService
+PointsRecordDao, PointsRuleDao, StudentDao
+awardPoints(), getRanking()
+StudentService
+StudentDao
+findAll(), deleteById()
+StatisticsService
+各Repository
+getOverview(), getPointsStats()
+【UML图：设计模型类图 - 展示各类的属性、方法、参数类型和返回类型】
+【UML图：顺序图：活动全生命周期 - 综合时序图，展示活动从创建到结束的完整交互】
+10.2 包/接口的设计
+包名
+职责
+主要类
+com.club.managementsystem
+根包
+ClubManagementSystemApplication
+.entity
+JPA实体
+Student, Club, Activity等10个
+.repository
+Spring Data JPA接口
+StudentRepository等10个
+.dao
+DAO接口
+StudentDao等10个
+.dao.impl
+DAO实现
+StudentDaoImpl等10个
+.service
+业务逻辑
+AuthService等8个
+.controller
+控制器
+AuthController等14个
+.dto
+数据传输对象
+ApiResponse等15个
+.config
+配置
+SecurityConfig等
+.security
+安全
+JwtAuthenticationFilter
+.filter
+过滤器
+CharacterEncodingFilter等
+.listener
+监听器
+SessionListener等
+.util
+工具类
+JwtUtil等
+包依赖关系：controller-service-dao-repository-entity。security依赖util中的JwtUtil。
+【UML图：包图 - 展示各包之间的依赖关系】
+10.3 数据库设计
+数据库采用MySQL，共10张核心表。
+表：students（学生表）
+存储系统所有用户信息
+列名
+类型
+约束
+说明
+student_id
+VARCHAR(20)
+PK
+学号
+name
+VARCHAR(20)
+NOT NULL
+姓名
+college
+VARCHAR(50)
+学院
+major_class
+VARCHAR(30)
+班级
+role
+VARCHAR(20)
+NOT NULL
+角色
+password
+VARCHAR(255)
+NOT NULL
+BCrypt密码
+total_points
+INT
+DEFAULT 0
+累计积分
+phone
+VARCHAR(20)
+手机
+email
+VARCHAR(50)
+邮箱
+created_at
+DATETIME
+NOT NULL
+创建时间
+表：clubs（社团表）
+存储社团信息
+列名
+类型
+约束
+说明
+club_id
+INT
+PK AUTO_INCREMENT
+社团ID
+club_name
+VARCHAR(50)
+UNIQUE NOT NULL
+名称
+introduction
+VARCHAR(500)
+简介
+club_type
+VARCHAR(20)
+类型
+president_id
+VARCHAR(10)
+FK-students
+社长
+status
+VARCHAR(20)
+DEFAULT ACTIVE
+状态
+created_at
+DATETIME
+NOT NULL
+创建时间
+表：club_memberships（成员关系表）
+存储成员关系
+列名
+类型
+约束
+说明
+membership_id
+INT
+PK AUTO_INCREMENT
+ID
+student_id
+VARCHAR(10)
+FK, UNIQUE(sid,cid)
+学生
+club_id
+INT
+FK-clubs
+社团
+role
+VARCHAR(20)
+NOT NULL
+社团角色
+application_status
+VARCHAR(20)
+NOT NULL
+申请状态
+removal_reason
+VARCHAR(255)
+移除原因
+表：activities（活动表）
+存储活动信息
+列名
+类型
+约束
+说明
+activity_id
+INT
+PK AUTO_INCREMENT
+活动ID
+activity_name
+VARCHAR(100)
+NOT NULL
+名称
+club_id
+INT
+FK-clubs
+社团
+activity_time
+DATETIME
+时间
+location
+VARCHAR(100)
+地点
+status
+VARCHAR(20)
+NOT NULL
+状态
+max_participants
+INT
+DEFAULT 0
+人数上限
+award_points
+INT
+积分
+activity_type
+VARCHAR(20)
+类型
+check_in_number
+VARCHAR(6)
+签到码
+created_at
+DATETIME
+NOT NULL
+创建时间
+表：activity_registrations（报名表）
+存储报名记录
+列名
+类型
+约束
+说明
+registration_id
+INT
+PK AUTO_INCREMENT
+ID
+student_id
+VARCHAR(10)
+FK-students
+学生
+activity_id
+INT
+FK-activities
+活动
+status
+VARCHAR(20)
+NOT NULL
+审核状态
+check_in_status
+BOOLEAN
+DEFAULT FALSE
+是否签到
+check_in_time
+DATETIME
+签到时间
+reject_reason
+VARCHAR(255)
+拒绝理由
+表：check_ins（签到表）
+存储签到记录
+列名
+类型
+约束
+说明
+check_in_id
+INT
+PK AUTO_INCREMENT
+ID
+student_id
+VARCHAR(10)
+FK-students
+学生
+activity_id
+INT
+FK-activities
+活动
+check_in_time
+DATETIME
+NOT NULL
+签到时间
+check_in_type
+VARCHAR(20)
+NOT NULL
+签到方式
+表：points_records（积分记录表）
+存储积分发放
+列名
+类型
+约束
+说明
+record_id
+INT
+PK AUTO_INCREMENT
+ID
+student_id
+VARCHAR(10)
+FK-students
+学生
+activity_id
+INT
+FK-activities
+活动
+points_earned
+INT
+NOT NULL
+积分值
+earned_time
+DATETIME
+NOT NULL
+获得时间
+表：points_rules（积分规则表）
+存储积分规则
+列名
+类型
+约束
+说明
+rule_id
+INT
+PK AUTO_INCREMENT
+ID
+activity_type
+VARCHAR(20)
+UNIQUE NOT NULL
+活动类型
+base_points_value
+INT
+NOT NULL
+基础积分
+表：file_records（文件表）
+存储文件元数据
+列名
+类型
+约束
+说明
+file_id
+BIGINT
+PK AUTO_INCREMENT
+ID
+original_name
+VARCHAR(255)
+NOT NULL
+原始名
+stored_name
+VARCHAR(255)
+NOT NULL
+存储名
+file_path
+VARCHAR(500)
+NOT NULL
+路径
+file_size
+BIGINT
+大小
+content_type
+VARCHAR(100)
+MIME
+表：system_config（配置表）
+系统配置键值对
+列名
+类型
+约束
+说明
+config_id
+INT
+PK AUTO_INCREMENT
+ID
+config_key
+VARCHAR(50)
+UNIQUE NOT NULL
+配置键
+config_value
+VARCHAR(500)
+配置值
+【UML图：ER图 - 展示10张表之间的外键关系（用类图绘制）】
+【UML图：表关系图 - 展示主键、外键、唯一约束（用类图绘制）】
