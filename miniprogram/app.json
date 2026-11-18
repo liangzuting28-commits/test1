@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/dashboard/dashboard",
+    "pages/activity-center/activity-center",
+    "pages/my-activities/my-activities",
+    "pages/my-points/my-points",
+    "pages/checkin/checkin",
+    "pages/club-manage/club-manage",
+    "pages/my-applications/my-applications",
+    "pages/create-activity/create-activity",
+    "pages/manage-activities/manage-activities",
+    "pages/member-management/member-management",
+    "pages/checkin-manage/checkin-manage",
+    "pages/activity-review/activity-review",
+    "pages/points-rules/points-rules",
+    "pages/points-manage/points-manage",
+    "pages/global-statistics/global-statistics",
+    "pages/admin/dashboard/dashboard",
+    "pages/admin/user-manage/user-manage",
+    "pages/admin/add-user/add-user"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#667eea",
+    "navigationBarTitleText": "社团活动管理",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "sitemapLocation": "sitemap.json"
+}

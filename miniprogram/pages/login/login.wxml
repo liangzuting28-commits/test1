@@ -1,0 +1,56 @@
+<view class="login-page">
+  <!-- Logo -->
+  <view class="logo-section">
+    <text class="logo-icon">&#x1F3EB;</text>
+    <text class="title">校园社团活动管理系统</text>
+    <text class="subtitle">基于Spring Boot的学生社团管理平台</text>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="form-card">
+    <text class="form-title">用户登录</text>
+
+    <!-- 角色选择 -->
+    <view class="role-selector">
+      <view wx:for="{{roles}}" wx:key="value"
+            class="role-btn {{selectedRole === item.value ? 'active' : ''}}"
+            bindtap="selectRole" data-role="{{item.value}}">
+        {{item.label}}
+      </view>
+    </view>
+
+    <!-- 用户名 -->
+    <view class="form-group">
+      <text class="label">{{selectedRole === 'TEACHER' ? '工号' : '学号'}}</text>
+      <view class="input-wrap">
+        <input class="input"
+               placeholder="{{selectedRole === 'TEACHER' ? '请输入工号' : '请输入学号'}}"
+               bindinput="onInputUsername"
+               value="{{username}}" />
+      </view>
+    </view>
+
+    <!-- 密码 -->
+    <view class="form-group">
+      <text class="label">密码</text>
+      <view class="input-wrap">
+        <input class="input"
+               password="{{!showPassword}}"
+               placeholder="请输入密码"
+               bindinput="onInputPassword"
+               value="{{password}}" />
+      </view>
+    </view>
+
+    <!-- 登录按钮 -->
+    <button class="login-btn" bindtap="doLogin" loading="{{loading}}" disabled="{{loading}}">
+      登录系统
+    </button>
+
+    <!-- 角色描述 -->
+    <view class="role-desc">
+      <view class="role-desc-title">当前身份：{{roleLabel}}</view>
+      <view class="role-desc-text">{{roleDesc}}</view>
+    </view>
+  </view>
+</view>

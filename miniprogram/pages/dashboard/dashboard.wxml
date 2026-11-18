@@ -1,0 +1,78 @@
+<view class="dashboard-page">
+  <!-- Header -->
+  <view class="header">
+    <view class="user-info">
+      <text class="welcome">欢迎，{{userName}}</text>
+      <text class="user-role">{{roleLabel}}</text>
+    </view>
+    <view class="logout-btn" bindtap="doLogout">退出</view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-row">
+    <view class="stat-card" wx:for="{{stats}}" wx:key="label">
+      <text class="stat-number">{{item.value}}</text>
+      <text class="stat-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- 学生菜单 -->
+  <view class="menu-section" wx:if="{{role === 'STUDENT'}}">
+    <text class="section-title">功能菜单</text>
+    <view class="menu-list">
+      <view class="menu-item" wx:for="{{studentMenus}}" wx:key="url" bindtap="goTo" data-url="{{item.url}}">
+        <view class="menu-icon {{item.iconBg}}">{{item.icon}}</view>
+        <view class="menu-text">
+          <text class="menu-label">{{item.label}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 社长菜单 -->
+  <view class="menu-section" wx:if="{{role === 'PRESIDENT'}}">
+    <text class="section-title">社团管理</text>
+    <view class="menu-list">
+      <view class="menu-item" wx:for="{{presidentMenus}}" wx:key="url" bindtap="goTo" data-url="{{item.url}}">
+        <view class="menu-icon {{item.iconBg}}">{{item.icon}}</view>
+        <view class="menu-text">
+          <text class="menu-label">{{item.label}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+
+    <view class="menu-divider"></view>
+    <text class="section-title" style="margin-top: 30rpx;">学生功能</text>
+    <view class="menu-list">
+      <view class="menu-item" wx:for="{{studentMenus}}" wx:key="url" bindtap="goTo" data-url="{{item.url}}">
+        <view class="menu-icon {{item.iconBg}}">{{item.icon}}</view>
+        <view class="menu-text">
+          <text class="menu-label">{{item.label}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 教师菜单 -->
+  <view class="menu-section" wx:if="{{role === 'TEACHER'}}">
+    <text class="section-title">功能菜单</text>
+    <view class="menu-list">
+      <view class="menu-item" wx:for="{{teacherMenus}}" wx:key="url" bindtap="goTo" data-url="{{item.url}}">
+        <view class="menu-icon {{item.iconBg}}">{{item.icon}}</view>
+        <view class="menu-text">
+          <text class="menu-label">{{item.label}}</text>
+          <text class="menu-desc">{{item.desc}}</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-space"></view>
+</view>
